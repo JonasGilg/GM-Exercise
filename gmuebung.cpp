@@ -1,3 +1,7 @@
+#ifdef WIN32
+#include <windows.h>
+#endif //WIN32
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
@@ -9,8 +13,8 @@
 #include <vector>
 #include <array>
 
-#if !defined(BUFSIZE)
-#define BUFSIZE 512
+#if !defined(BUFFSIZE)
+#define BUFFSIZE 512
 #endif
 
 using namespace std;
@@ -125,12 +129,12 @@ int processHits(GLint hits, GLuint buffer[]) {
 }
 
 int pickPoints(int x, int y) {
-    GLuint selectBuf[BUFSIZE];
+    GLuint selectBuf[BUFFSIZE];
     GLint hits;
     GLint viewport[4];
 
     glGetIntegerv(GL_VIEWPORT, viewport);
-    glSelectBuffer(BUFSIZE, selectBuf);
+    glSelectBuffer(BUFFSIZE, selectBuf);
     (void) glRenderMode(GL_SELECT);
     glInitNames();
     glPushName(0);
