@@ -1,5 +1,7 @@
 #ifdef WIN32
+
 #include <windows.h>
+
 #endif //WIN32
 
 #include <GL/gl.h>
@@ -12,6 +14,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <array>
+#include <glm/gtc/type_ptr.hpp>
+#include "BezierCurve.h"
 
 #if !defined(BUFFSIZE)
 #define BUFFSIZE 512
@@ -20,86 +24,13 @@
 using namespace std;
 using namespace glm;
 
-const int num_points = 5;
-const int recursions = 4;
-array<vec3, num_points> points;
+BezierCurve *curve1;
+BezierCurve *curve2;
 int picked_pos = -1;
 
-void drawPoints(GLenum mode) {
-    glColor3f(1.0, 0.0, 0.0);
-    glPointSize(8.0);
-
-    for (int i = 0; i < num_points; i++) {
-        if (mode == GL_SELECT)
-            glLoadName(static_cast<GLuint>(i));
-        glBegin(GL_POINTS);
-        glVertex3f((GLfloat) points[i].x, (GLfloat) points[i].y, (GLfloat) points[i].z);
-        glEnd();
-    }
-
-    if (mode == GL_SELECT)
-        glPopName();
-}
-
-void drawPolygon() {
-    glColor3f(0.0, 1.0, 0.0);
-    glBegin(GL_LINE_STRIP);
-    for (int i = 0; i < num_points; i++) {
-        glVertex3f((GLfloat) points[i].x, (GLfloat) points[i].y, (GLfloat) points[i].z);
-    }
-    glEnd();
-}
-
-pair<vector<vec3>, vector<vec3>> deCasteljau(const vector<vec3> &currPoints) {
-    size_t n = currPoints.size();
-    vector<vector<vec3>> values(n, std::vector<vec3>(n));
-
-    for (int x = 0; x < n; ++x) {
-        for (int y = x; y < n; ++y) {
-            if(x == 0) {
-                values[x][y] = currPoints[y];
-            } else {
-                vec3 first = values[x - 1][y];
-                vec3 second = values[x - 1][y - 1];
-                values[x][y] = (first + second) * 0.5f;
-            }
-        }
-    }
-
-    vector<vec3> p1;
-    vector<vec3> p2;
-
-    for (int i = 0; i < n; ++i) {
-        p1.push_back(values[i][i]);
-        p2.push_back(values[n - i - 1][n - 1]);
-    }
-
-    return pair<vector<vec3>, vector<vec3>>(p1, p2);
-}
-
-void plotBezier(vector<vec3> currPoints, int k) {
-    if (k == 0) {
-        glColor3f(0.0, 0.0, 1.0);
-        glBegin(GL_LINE_STRIP);
-        for (auto &&point : currPoints) {
-            glVertex3f((GLfloat) point.x, (GLfloat) point.y, (GLfloat) point.z);
-        }
-        glEnd();
-    } else {
-        pair<vector<vec3>, vector<vec3>> divided = deCasteljau(currPoints);
-        plotBezier(divided.first, k - 1);
-        plotBezier(divided.second, k - 1);
-    }
-}
-
-void drawCurve() {
-    plotBezier(vector<vec3>(points.begin(), points.end()), recursions);
-}
-
 void drawAll(GLenum mode) {
-    drawPoints(mode);
-    drawPolygon();
-    drawCurve();
+    curve1->draw(mode);
+    curve2->draw(mode);
 }
 
 int processHits(GLint hits, GLuint buffer[]) {
@@ -182,11 +113,12 @@ void mouseMove(int x, int y) {
     GLdouble objx, objy, objz;
     GLfloat z;
 
-    glReadPixels(static_cast<GLint>((GLdouble) new_pos_x), static_cast<GLint>((GLdouble) new_pos_y), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
+    glReadPixels(static_cast<GLint>((GLdouble) new_pos_x), static_cast<GLint>((GLdouble) new_pos_y), 1, 1,
+                 GL_DEPTH_COMPONENT, GL_FLOAT, &z);
     gluUnProject((GLdouble) new_pos_x, (GLdouble) new_pos_y, z, cmvm, cpm, viewport, &objx, &objy, &objz);
 
     if (picked_pos >= 0)
-        points[picked_pos] = vec3((double) objx, (double) objy, (double) objz);
+        curve1->setPicked(picked_pos, vec3((double) objx, (double) objy, (double) objz));//points[picked_pos] = vec3((double) objx, (double) objy, (double) objz);
 
     glutPostRedisplay();
 }
@@ -202,10 +134,20 @@ void display() {
 void init() {
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glShadeModel(GL_FLAT);
-    points[0] = vec3(-1.0, 0.0, 0.0);
-    points[1] = vec3(-1.0, 1.0, 0.0);
-    points[2] = vec3(1.0, 1.0, 0.0);
-    points[3] = vec3(1.0, 0.0, 0.0);
+
+    curve1 = new BezierCurve(vector<vec3>{
+            vec3(-1.5, 0.0, 0.0),
+            vec3(-1.5, 1.5, 0.0),
+            vec3(1.5, 1.5, 0.0),
+            vec3(1.5, 0.0, 0.0)
+    }, 4);
+
+    curve2 = new BezierCurve(vector<vec3>{
+            vec3(-0.5, 0.0, 0.0),
+            vec3(-0.5, 0.5, 0.0),
+            vec3(0.5, 0.5, 0.0),
+            vec3(0.5, 0.0, 0.0)
+    }, 4);
 }
 
 void reshape(GLsizei w, GLsizei h) {
@@ -241,7 +183,8 @@ void keyboard(unsigned char key, int x, int y) {
             // do something
             glutPostRedisplay();
             break;
-        default:break;
+        default:
+            break;
     }
 }
 
