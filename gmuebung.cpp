@@ -53,9 +53,10 @@ int processHits(GLint hits, GLuint buffer[]) {
 
             ptr++;
         }
-        printf("\n");
 
+        printf("\n");
     }
+
     return result;
 }
 
