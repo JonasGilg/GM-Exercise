@@ -16,7 +16,7 @@ public:
 
     void setPicked(int i, vec3 picked);
 
-    virtual ~BezierCurve();
+    virtual ~BezierCurve() = default;
 
 private:
     void plotBezier(const vector<vec3> &currPoints, int k);

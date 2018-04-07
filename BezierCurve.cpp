@@ -95,5 +95,3 @@ void BezierCurve::plotBezier(const vector<vec3> &currPoints, int k) {
         plotBezier(divided.second, k - 1);
     }
 }
-
-BezierCurve::~BezierCurve() = default;

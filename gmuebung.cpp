@@ -119,7 +119,7 @@ void mouseMove(int x, int y) {
     gluUnProject((GLdouble) new_pos_x, (GLdouble) new_pos_y, z, cmvm, cpm, viewport, &objx, &objy, &objz);
 
     if (picked_pos >= 0)
-        curve1->setPicked(picked_pos, vec3((double) objx, (double) objy, (double) objz));//points[picked_pos] = vec3((double) objx, (double) objy, (double) objz);
+        curve1->setPicked(picked_pos, vec3((double) objx, (double) objy, (double) objz));
 
     glutPostRedisplay();
 }
