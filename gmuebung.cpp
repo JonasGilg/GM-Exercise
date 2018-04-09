@@ -37,6 +37,7 @@ void drawAll() {
 void drawPoints() {
     curve1->drawPoints(GL_SELECT);
     curve2->drawPoints(GL_SELECT);
+    glPopName();
 }
 
 int processHits(GLint hits, GLuint buffer[]) {
@@ -120,14 +121,14 @@ void mouseMove(int x, int y) {
     GLdouble objx, objy, objz;
     GLfloat z;
 
-    glReadPixels(static_cast<GLint>((GLdouble) new_pos_x), static_cast<GLint>((GLdouble) new_pos_y), 1, 1,
+    glReadPixels(new_pos_x, new_pos_y, 1, 1,
                  GL_DEPTH_COMPONENT, GL_FLOAT, &z);
-    gluUnProject((GLdouble) new_pos_x, (GLdouble) new_pos_y, z, cmvm, cpm, viewport, &objx, &objy, &objz);
+    gluUnProject(new_pos_x, new_pos_y, z, cmvm, cpm, viewport, &objx, &objy, &objz);
 
-    if (picked_pos >= 0 && picked_pos < curve1->iterations) {
-        curve1->setPicked(picked_pos, vec3((double) objx, (double) objy, (double) objz));
-    } else if (picked_pos >= curve1->iterations) {
-        curve2->setPicked(picked_pos - curve1->iterations, vec3((double) objx, (double) objy, (double) objz));
+    if (picked_pos >= 0 && picked_pos < curve2->offset) {
+        curve1->setPicked(picked_pos, vec3(objx, objy, objz));
+    } else if(picked_pos >= curve2->offset) {
+        curve2->setPicked(picked_pos, vec3(objx, objy, objz));
     }
 
     glutPostRedisplay();
@@ -146,18 +147,18 @@ void init() {
     glShadeModel(GL_FLAT);
 
     curve1 = make_unique<BezierCurve>(vector<vec3>{
-            vec3(-1.5, 0.0, 0.0),
-            vec3(-1.5, 1.5, 0.0),
-            vec3(1.5, 1.5, 0.0),
-            vec3(1.5, 0.0, 0.0)
-    }, 4);
+            vec3(-1.0, 0.0, 0.0),
+            vec3(-1.0, 1.0, 0.0),
+            vec3(-3.0, 1.0, 0.0),
+            vec3(-3.0, 0.0, 0.0)
+    }, 4, 0);
 
     curve2 = make_unique<BezierCurve>(vector<vec3>{
-            vec3(-0.5, 0.0, 0.0),
-            vec3(-0.5, 0.5, 0.0),
-            vec3(0.5, 0.5, 0.0),
-            vec3(0.5, 0.0, 0.0)
-    }, 4);
+            vec3(1.0, 0.0, 0.0),
+            vec3(1.0, 1.0, 0.0),
+            vec3(3.0, 1.0, 0.0),
+            vec3(3.0, 0.0, 0.0)
+    }, 4, 4);
 }
 
 void reshape(GLsizei w, GLsizei h) {
@@ -198,11 +199,20 @@ void keyboard(unsigned char key, int x, int y) {
     }
 }
 
+constexpr int WINDOW_WIDTH = 1200;
+constexpr int WINDOW_HEIGHT = 720;
+
+
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
+
+
+    const int windowX = (glutGet(GLUT_SCREEN_WIDTH) - WINDOW_WIDTH) / 2;
+    const int windowY = (glutGet(GLUT_SCREEN_HEIGHT) - WINDOW_HEIGHT) / 2;
+
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitWindowPosition(0, 0);
-    glutInitWindowSize(600, 360);
+    glutInitWindowPosition(windowX, windowY);
+    glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     glutCreateWindow("GM Uebung SoSe 2018");
 
     init();

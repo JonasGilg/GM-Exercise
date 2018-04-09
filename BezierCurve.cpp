@@ -1,10 +1,16 @@
 #include "BezierCurve.h"
 #include <utility>
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
 
-BezierCurve::BezierCurve(vector<vec3> controlPoints, int iterations)
+const vec3 BezierCurve::POINT_COLOR = vec3(1, 0, 0);
+const vec3 BezierCurve::POLYGON_COLOR = vec3(0, 1, 0);
+const vec3 BezierCurve::CURVE_COLOR = vec3(0, 0, 1);
+
+BezierCurve::BezierCurve(vector<vec3> controlPoints, int iterations, int offset)
         : controlPoints(std::move(controlPoints)),
-          iterations(iterations) {
+          iterations(iterations),
+          offset(offset) {
     update();
 }
 
@@ -14,7 +20,7 @@ void BezierCurve::update() {
 }
 
 void BezierCurve::setPicked(int i, vec3 picked) {
-    controlPoints[i] = picked;
+    controlPoints[i - offset] = picked;
     update();
 }
 
@@ -25,33 +31,30 @@ void BezierCurve::draw() const {
 }
 
 void BezierCurve::drawPoints(GLenum mode) const {
-    glColor3f(1.0, 0.0, 0.0);
+    glColor3fv(value_ptr(POINT_COLOR));
     glPointSize(8.0);
 
     for (int i = 0; i < controlPoints.size(); i++) {
         if (mode == GL_SELECT)
-            glLoadName(static_cast<GLuint>(i));
+            glLoadName(static_cast<GLuint>(i + offset));
 
         glBegin(GL_POINTS);
-            glVertex3fv(value_ptr(controlPoints[i]));
+        glVertex3fv(value_ptr(controlPoints[i]));
         glEnd();
     }
-
-    if (mode == GL_SELECT)
-        glPopName();
 }
 
 void BezierCurve::drawPolygon() const {
-    glColor3f(0.0, 1.0, 0.0);
+    glColor3fv(value_ptr(POLYGON_COLOR));
     glBegin(GL_LINE_STRIP);
-    for (auto&& point : controlPoints) {
+    for (auto &&point : controlPoints) {
         glVertex3fv(value_ptr(point));
     }
     glEnd();
 }
 
 void BezierCurve::drawCurve() const {
-    glColor3f(0.0, 0.0, 1.0);
+    glColor3fv(value_ptr(CURVE_COLOR));
     glBegin(GL_LINE_STRIP);
     for (auto &&point : curvePoints) {
         glVertex3fv(value_ptr(point));
@@ -65,7 +68,7 @@ pair<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &cu
 
     for (int x = 0; x < n; ++x) {
         for (int y = x; y < n; ++y) {
-            if(x == 0) {
+            if (x == 0) {
                 values[x][y] = currPoints[y];
             } else {
                 vec3 first = values[x - 1][y];
