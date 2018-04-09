@@ -12,25 +12,30 @@
 #include <cmath>
 #include <cassert>
 #include <glm/glm.hpp>
-#include <vector>
+#include <memory> #include <vector>
 #include <array>
 #include <glm/gtc/type_ptr.hpp>
-#include "BezierCurve.h"
+#include <memory>
 
-#if !defined(BUFFSIZE)
-#define BUFFSIZE 512
-#endif
+#include "BezierCurve.h"
 
 using namespace std;
 using namespace glm;
 
-BezierCurve *curve1;
-BezierCurve *curve2;
+constexpr int BUFFER_SIZE = 512;
+
+unique_ptr<BezierCurve> curve1;
+unique_ptr<BezierCurve> curve2;
 int picked_pos = -1;
 
-void drawAll(GLenum mode) {
-    curve1->draw(mode);
-    curve2->draw(mode);
+void drawAll() {
+    curve1->draw();
+    curve2->draw();
+}
+
+void drawPoints() {
+    curve1->drawPoints(GL_SELECT);
+    curve2->drawPoints(GL_SELECT);
 }
 
 int processHits(GLint hits, GLuint buffer[]) {
@@ -61,12 +66,12 @@ int processHits(GLint hits, GLuint buffer[]) {
 }
 
 int pickPoints(int x, int y) {
-    GLuint selectBuf[BUFFSIZE];
+    GLuint selectBuf[BUFFER_SIZE];
     GLint hits;
     GLint viewport[4];
 
     glGetIntegerv(GL_VIEWPORT, viewport);
-    glSelectBuffer(BUFFSIZE, selectBuf);
+    glSelectBuffer(BUFFER_SIZE, selectBuf);
     (void) glRenderMode(GL_SELECT);
     glInitNames();
     glPushName(0);
@@ -77,7 +82,7 @@ int pickPoints(int x, int y) {
 
     gluPickMatrix((GLdouble) x, (GLdouble) (viewport[3] - y), 8.0, 8.0, viewport);
     gluPerspective(60.0, (GLfloat) viewport[2] / (GLfloat) viewport[3], 1.0, 20.0);
-    drawAll(GL_SELECT);
+    drawPoints();
 
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
@@ -89,7 +94,7 @@ int pickPoints(int x, int y) {
 }
 
 void mousePress(int button, int state, int x, int y) {
-    if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_DOWN)) // && (glutGetModifiers()==GLUT_ACTIVE_CTRL))
+    if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_DOWN)) // && (glutGetModifiers() == GLUT_ACTIVE_CTRL))
         picked_pos = pickPoints(x, y);
 
     if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_UP))
@@ -118,8 +123,11 @@ void mouseMove(int x, int y) {
                  GL_DEPTH_COMPONENT, GL_FLOAT, &z);
     gluUnProject((GLdouble) new_pos_x, (GLdouble) new_pos_y, z, cmvm, cpm, viewport, &objx, &objy, &objz);
 
-    if (picked_pos >= 0)
+    if (picked_pos >= 0 && picked_pos < curve1->iterations) {
         curve1->setPicked(picked_pos, vec3((double) objx, (double) objy, (double) objz));
+    } else if (picked_pos >= curve1->iterations) {
+        curve2->setPicked(picked_pos - curve1->iterations, vec3((double) objx, (double) objy, (double) objz));
+    }
 
     glutPostRedisplay();
 }
@@ -128,7 +136,7 @@ void display() {
     glMatrixMode(GL_MODELVIEW);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3f(1.0, 1.0, 1.0);
-    drawAll(GL_RENDER);
+    drawAll();
     glutSwapBuffers();
 }
 
@@ -136,14 +144,14 @@ void init() {
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glShadeModel(GL_FLAT);
 
-    curve1 = new BezierCurve(vector<vec3>{
+    curve1 = make_unique<BezierCurve>(vector<vec3>{
             vec3(-1.5, 0.0, 0.0),
             vec3(-1.5, 1.5, 0.0),
             vec3(1.5, 1.5, 0.0),
             vec3(1.5, 0.0, 0.0)
     }, 4);
 
-    curve2 = new BezierCurve(vector<vec3>{
+    curve2 = make_unique<BezierCurve>(vector<vec3>{
             vec3(-0.5, 0.0, 0.0),
             vec3(-0.5, 0.5, 0.0),
             vec3(0.5, 0.5, 0.0),
@@ -205,5 +213,6 @@ int main(int argc, char **argv) {
     glutDisplayFunc(display);
 
     glutMainLoop();
+
     return 0;
 }

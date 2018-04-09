@@ -18,8 +18,8 @@ void BezierCurve::setPicked(int i, vec3 picked) {
     update();
 }
 
-void BezierCurve::draw(GLenum mode) {
-    drawPoints(mode);
+void BezierCurve::draw() {
+    drawPoints(GL_RENDER);
     drawPolygon();
     drawCurve();
 }
