@@ -1,24 +1,25 @@
 #include "BezierCurve.h"
 #include "AxisAlignedBoundingBox.h"
+
 #include <utility>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
 #include <iostream>
+#include <sstream>
+#include <typeinfo>
 
-constexpr vec3 BezierCurve::POINT_COLOR;
-constexpr vec3 BezierCurve::POLYGON_COLOR;
-constexpr vec3 BezierCurve::CURVE_COLOR;
-
-BezierCurve::BezierCurve(vector<vec3> controlPoints, int iterations, int offset)
+BezierCurve::BezierCurve(vector<vec3> controlPoints, vec3 pointColor, vec3 meshColor, vec3 curveColor, int offset)
         : controlPoints(move(controlPoints)),
-          iterations(iterations),
+          pointColor(pointColor),
+          meshColor(meshColor),
+          curveColor(curveColor),
           offset(offset) {
     update();
 }
 
 void BezierCurve::update() {
     curvePoints.clear();
-    plotBezier(controlPoints, iterations);
+    plotBezier(controlPoints);
 }
 
 void BezierCurve::setPicked(int i, vec3 picked) {
@@ -86,18 +87,17 @@ vector<vec3> BezierCurve::intersectsRecursive(const vector<vec3> &v1, const vect
 }
 
 vector<vec3> BezierCurve::intersects(const BezierCurve &other) const {
-    return intersectsRecursive(this->controlPoints, other.controlPoints, 0.0001f);
+    return intersectsRecursive(this->controlPoints, other.controlPoints, 0.001f);
 }
 
 void BezierCurve::draw() const {
-    drawPoints(GL_RENDER);
-    drawPolygon();
     drawCurve();
+    drawMesh();
+    drawPoints(GL_RENDER);
 }
 
 void BezierCurve::drawPoints(GLenum mode) const {
-    glColor3fv(value_ptr(POINT_COLOR));
-    glPointSize(8.0);
+    glColor3fv(value_ptr(pointColor));
 
     for (int i = 0; i < controlPoints.size(); i++) {
         if (mode == GL_SELECT)
@@ -109,8 +109,8 @@ void BezierCurve::drawPoints(GLenum mode) const {
     }
 }
 
-void BezierCurve::drawPolygon() const {
-    glColor3fv(value_ptr(POLYGON_COLOR));
+void BezierCurve::drawMesh() const {
+    glColor3fv(value_ptr(meshColor));
     glBegin(GL_LINE_STRIP);
     for (auto &&point : controlPoints) {
         glVertex3fv(value_ptr(point));
@@ -119,7 +119,7 @@ void BezierCurve::drawPolygon() const {
 }
 
 void BezierCurve::drawCurve() const {
-    glColor3fv(value_ptr(CURVE_COLOR));
+    glColor3fv(value_ptr(curveColor));
     glBegin(GL_LINE_STRIP);
     for (auto &&point : curvePoints) {
         glVertex3fv(value_ptr(point));
@@ -154,12 +154,22 @@ pair<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &cu
     return {p1, p2};
 }
 
-void BezierCurve::plotBezier(const vector<vec3> &currPoints, int k) {
-    if (k == 0) {
+void BezierCurve::plotBezier(const vector<vec3> &currPoints) {
+    if (isFlat(currPoints, 0.001f)) {
         curvePoints.insert(curvePoints.end(), currPoints.begin(), currPoints.end());
     } else {
         auto result = deCasteljau(currPoints);
-        plotBezier(result.first, k - 1);
-        plotBezier(result.second, k - 1);
+        plotBezier(result.first);
+        plotBezier(result.second);
     }
+}
+
+string BezierCurve::toString() const {
+    ostringstream result;
+
+    for (auto&& point : controlPoints)
+        result << "(" << point.x << ", " << point.y << ", " << point.z << ")" << "\n";
+
+    result << endl;
+    return result.str();
 }

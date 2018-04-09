@@ -33,9 +33,8 @@ void drawAll() {
     curve1->draw();
     curve2->draw();
 
+    glColor3f(1.0f, 0.0f, 0.0f);
     auto intersections = curve1->intersects(*curve2);
-
-    glColor3f(1, 1, 0);
     glBegin(GL_POINTS);
     for (auto point : intersections)
         glVertex3fv(value_ptr(point));
@@ -62,14 +61,10 @@ int processHits(GLint hits, GLuint buffer[]) {
         ptr++;
 
         for (j = 0; j < names; j++) { /*  for each name */
-            printf("%d ", *ptr);
-
             result = (int) *ptr;
 
             ptr++;
         }
-
-        printf("\n");
     }
 
     return result;
@@ -82,7 +77,7 @@ int pickPoints(int x, int y) {
 
     glGetIntegerv(GL_VIEWPORT, viewport);
     glSelectBuffer(BUFFER_SIZE, selectBuf);
-    (void) glRenderMode(GL_SELECT);
+    glRenderMode(GL_SELECT);
     glInitNames();
     glPushName(0);
 
@@ -90,8 +85,8 @@ int pickPoints(int x, int y) {
     glPushMatrix();
     glLoadIdentity();
 
-    gluPickMatrix((GLdouble) x, (GLdouble) (viewport[3] - y), 8.0, 8.0, viewport);
-    gluPerspective(60.0, (GLfloat) viewport[2] / (GLfloat) viewport[3], 1.0, 20.0);
+    gluPickMatrix(static_cast<double>(x), static_cast<double>(viewport[3] - y), 8.0, 8.0, viewport);
+    gluPerspective(60.0, static_cast<double>(viewport[2]) / static_cast<double>(viewport[3]), 1.0, 20.0);
     drawPoints();
 
     glMatrixMode(GL_PROJECTION);
@@ -129,14 +124,13 @@ void mouseMove(int x, int y) {
     GLdouble objx, objy, objz;
     GLfloat z;
 
-    glReadPixels(new_pos_x, new_pos_y, 1, 1,
-                 GL_DEPTH_COMPONENT, GL_FLOAT, &z);
+    glReadPixels(new_pos_x, new_pos_y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
     gluUnProject(new_pos_x, new_pos_y, z, cmvm, cpm, viewport, &objx, &objy, &objz);
 
     if (picked_pos >= 0 && picked_pos < curve2->offset) {
-        curve1->setPicked(picked_pos, vec3(objx, objy, objz));
+        curve1->setPicked(picked_pos, vec3(static_cast<float>(objx), static_cast<float>(objy), round(static_cast<float>(objz))));
     } else if (picked_pos >= curve2->offset) {
-        curve2->setPicked(picked_pos, vec3(objx, objy, objz));
+        curve2->setPicked(picked_pos, vec3(static_cast<float>(objx), static_cast<float>(objy), round(static_cast<float>(objz))));
     }
 
     glutPostRedisplay();
@@ -145,38 +139,42 @@ void mouseMove(int x, int y) {
 void display() {
     glMatrixMode(GL_MODELVIEW);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glColor3f(1.0, 1.0, 1.0);
+    glColor3f(1.0f, 1.0f, 1.0f);
     drawAll();
     glutSwapBuffers();
 }
 
 void init() {
-    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glShadeModel(GL_FLAT);
+    glEnable(GL_POINT_SMOOTH);
+    glPointSize(8.0);
 
     curve1 = make_unique<BezierCurve>(vector<vec3>{
-            vec3(-1.0, 0.0, 0.0),
-            vec3(-1.0, 1.0, 0.0),
-            vec3(-3.0, 1.0, 0.0),
-            vec3(-3.0, 0.0, 0.0)
-    }, 4, 0);
+            vec3(-4.0f, 0.0f, -15.0f),
+            vec3(-4.0f, 4.0f, -15.0f),
+            vec3(-12.0f, 4.0f, -15.0f),
+            vec3(-12.0f, 0.0f, -15.0f),
+            vec3(-8.0f, 0.0f, -15.0f)
+    }, vec3(0.2f, 0.2f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.6f, 0.6f, 1.0f), 0);
 
     curve2 = make_unique<BezierCurve>(vector<vec3>{
-            vec3(1.0, 0.0, 0.0),
-            vec3(1.0, 1.0, 0.0),
-            vec3(3.0, 1.0, 0.0),
-            vec3(3.0, 0.0, 0.0)
-    }, 4, 4);
+            vec3(4.0f, 0.0f, -15.0f),
+            vec3(4.0f, 4.0f, -15.0f),
+            vec3(12.0f, 4.0f, -15.0f),
+            vec3(12.0f, 0.0f, -15.0f),
+            vec3(8.0f, 0.0f, -15.0f)
+    }, vec3(0.2f, 1.0f, 0.2f), vec3(1.0f, 1.0f, 0.0f), vec3(0.6f, 1.0f, 0.6f), 5);
 }
 
 void reshape(GLsizei w, GLsizei h) {
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60.0, (GLfloat) w / (GLfloat) h, 1.0, 20.0);
+    gluPerspective(60.0, static_cast<double>(w) / static_cast<double>(h), 1.0, 20.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glTranslatef(0.0, 0.0, static_cast<GLfloat>(-5.0));
+    glTranslatef(0.0f, 0.0f, -5.0f);
 }
 
 void keyboard(unsigned char key, int x, int y) {

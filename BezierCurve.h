@@ -11,7 +11,7 @@ using namespace glm;
 
 class BezierCurve {
 public:
-    BezierCurve(vector<vec3> controlPoints, int iterations, int offset);
+    BezierCurve(vector<vec3> controlPoints, vec3 pointColor, vec3 meshColor, vec3 curveColor, int offset);
 
     void update();
     void draw() const;
@@ -21,23 +21,24 @@ public:
 
     vector<vec3> intersects(const BezierCurve& other) const;
 
+    string toString() const;
+
     virtual ~BezierCurve() = default;
 
-    const int iterations;
     const int offset;
 
 private:
-    void plotBezier(const vector<vec3> &currPoints, int k);
+    void plotBezier(const vector<vec3> &currPoints);
     pair<vector<vec3>, vector<vec3>> deCasteljau(const vector<vec3> &currPoints) const;
     vector<vec3> intersectsRecursive(const vector<vec3> &v1, const vector<vec3> &v2, float epsilon) const;
 
-    void drawPolygon() const;
+    void drawMesh() const;
     void drawCurve() const;
 
     vector<vec3> controlPoints;
     vector<vec3> curvePoints;
 
-    static constexpr vec3 POINT_COLOR = vec3(1, 0, 0);
-    static constexpr vec3 POLYGON_COLOR = vec3(0, 1, 0);
-    static constexpr vec3 CURVE_COLOR = vec3(0, 0, 1);
+    const vec3 pointColor;
+    const vec3 meshColor;
+    const vec3 curveColor;
 };
