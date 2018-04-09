@@ -18,13 +18,13 @@ void BezierCurve::setPicked(int i, vec3 picked) {
     update();
 }
 
-void BezierCurve::draw() {
+void BezierCurve::draw() const {
     drawPoints(GL_RENDER);
     drawPolygon();
     drawCurve();
 }
 
-void BezierCurve::drawPoints(GLenum mode) {
+void BezierCurve::drawPoints(GLenum mode) const {
     glColor3f(1.0, 0.0, 0.0);
     glPointSize(8.0);
 
@@ -41,7 +41,7 @@ void BezierCurve::drawPoints(GLenum mode) {
         glPopName();
 }
 
-void BezierCurve::drawPolygon() {
+void BezierCurve::drawPolygon() const {
     glColor3f(0.0, 1.0, 0.0);
     glBegin(GL_LINE_STRIP);
     for (auto&& point : controlPoints) {
@@ -50,7 +50,7 @@ void BezierCurve::drawPolygon() {
     glEnd();
 }
 
-void BezierCurve::drawCurve() {
+void BezierCurve::drawCurve() const {
     glColor3f(0.0, 0.0, 1.0);
     glBegin(GL_LINE_STRIP);
     for (auto &&point : curvePoints) {

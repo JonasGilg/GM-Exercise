@@ -12,8 +12,8 @@ public:
     BezierCurve(vector<vec3> controlPoints, int iterations);
 
     void update();
-    void draw();
-    void drawPoints(GLenum mode);
+    void draw() const;
+    void drawPoints(GLenum mode) const;
 
     void setPicked(int i, vec3 picked);
 
@@ -24,8 +24,8 @@ private:
     void plotBezier(const vector<vec3> &currPoints, int k);
     pair<vector<vec3>, vector<vec3>> deCasteljau(const vector<vec3> &currPoints);
 
-    void drawPolygon();
-    void drawCurve();
+    void drawPolygon() const;
+    void drawCurve() const;
 
     vector<vec3> controlPoints;
     vector<vec3> curvePoints;
