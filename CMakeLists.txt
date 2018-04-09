@@ -14,8 +14,8 @@ find_package(GLUT REQUIRED)
 
 if(WIN32)
     set(GLM_INCLUDE_DIR "D:/C++Libs/all/glm/glm-0.9.8.5")
+    find_package(GLM REQUIRED)
 endif()
-find_package(GLM REQUIRED)
 
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${GLUT_INCLUDE_DIR})
 
