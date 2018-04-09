@@ -3,10 +3,8 @@
 #include <glm/vec3.hpp>
 #include <vector>
 #include <GL/gl.h>
-#include <experimental/optional>
 
 using namespace std;
-using namespace std::experimental;
 using namespace glm;
 
 class BezierCurve {
@@ -20,8 +18,6 @@ public:
     void setPicked(int i, vec3 picked);
 
     vector<vec3> intersects(const BezierCurve& other) const;
-
-    string toString() const;
 
     virtual ~BezierCurve() = default;
 

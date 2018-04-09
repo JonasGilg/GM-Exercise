@@ -1,12 +1,11 @@
 #include "BezierCurve.h"
 #include "AxisAlignedBoundingBox.h"
 
-#include <utility>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
-#include <iostream>
-#include <sstream>
-#include <typeinfo>
+#include <experimental/optional>
+
+using namespace std::experimental;
 
 BezierCurve::BezierCurve(vector<vec3> controlPoints, vec3 pointColor, vec3 meshColor, vec3 curveColor, int offset)
         : controlPoints(move(controlPoints)),
@@ -162,14 +161,4 @@ void BezierCurve::plotBezier(const vector<vec3> &currPoints) {
         plotBezier(result.first);
         plotBezier(result.second);
     }
-}
-
-string BezierCurve::toString() const {
-    ostringstream result;
-
-    for (auto&& point : controlPoints)
-        result << "(" << point.x << ", " << point.y << ", " << point.z << ")" << "\n";
-
-    result << endl;
-    return result.str();
 }

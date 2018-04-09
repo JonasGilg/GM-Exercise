@@ -7,14 +7,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
-#include <cstdio>
-#include <iostream>
 #include <cmath>
-#include <cassert>
-#include <glm/glm.hpp>
-#include <memory>
+#include <glm/vec3.hpp>
 #include <vector>
-#include <array>
 #include <glm/gtc/type_ptr.hpp>
 #include <memory>
 
@@ -48,21 +43,15 @@ void drawPoints() {
 }
 
 int processHits(GLint hits, GLuint buffer[]) {
-    unsigned int i, j;
-    GLuint names, *ptr;
     int result = -1;
 
-    ptr = buffer;
-    for (i = 0; i < hits; i++) { /*  for each hit  */
-        names = *ptr;
+    GLuint *ptr = buffer;
+    for (int i = 0; i < hits; i++) { /*  for each hit  */
+        GLuint names = *ptr;
+        ptr += 3;
 
-        ptr++;
-        ptr++;
-        ptr++;
-
-        for (j = 0; j < names; j++) { /*  for each name */
+        for (int j = 0; j < names; j++) { /*  for each name */
             result = (int) *ptr;
-
             ptr++;
         }
     }
@@ -179,7 +168,6 @@ void reshape(GLsizei w, GLsizei h) {
 
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
-
         case 's':
             // do something
             glutPostRedisplay();
