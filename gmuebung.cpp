@@ -12,7 +12,8 @@
 #include <cmath>
 #include <cassert>
 #include <glm/glm.hpp>
-#include <memory> #include <vector>
+#include <memory>
+#include <vector>
 #include <array>
 #include <glm/gtc/type_ptr.hpp>
 #include <memory>
