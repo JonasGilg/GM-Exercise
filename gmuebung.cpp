@@ -32,6 +32,14 @@ int picked_pos = -1;
 void drawAll() {
     curve1->draw();
     curve2->draw();
+
+    auto intersections = curve1->intersects(*curve2);
+
+    glColor3f(1, 1, 0);
+    glBegin(GL_POINTS);
+    for (auto point : intersections)
+        glVertex3fv(value_ptr(point));
+    glEnd();
 }
 
 void drawPoints() {
@@ -127,7 +135,7 @@ void mouseMove(int x, int y) {
 
     if (picked_pos >= 0 && picked_pos < curve2->offset) {
         curve1->setPicked(picked_pos, vec3(objx, objy, objz));
-    } else if(picked_pos >= curve2->offset) {
+    } else if (picked_pos >= curve2->offset) {
         curve2->setPicked(picked_pos, vec3(objx, objy, objz));
     }
 
@@ -199,18 +207,16 @@ void keyboard(unsigned char key, int x, int y) {
     }
 }
 
-constexpr int WINDOW_WIDTH = 1200;
-constexpr int WINDOW_HEIGHT = 720;
-
-
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
 
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
+    constexpr int WINDOW_WIDTH = 1200;
+    constexpr int WINDOW_HEIGHT = 720;
     const int windowX = (glutGet(GLUT_SCREEN_WIDTH) - WINDOW_WIDTH) / 2;
     const int windowY = (glutGet(GLUT_SCREEN_HEIGHT) - WINDOW_HEIGHT) / 2;
 
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowPosition(windowX, windowY);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     glutCreateWindow("GM Uebung SoSe 2018");

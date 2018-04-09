@@ -1,14 +1,16 @@
 #include "BezierCurve.h"
+#include "AxisAlignedBoundingBox.h"
 #include <utility>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/norm.hpp>
 #include <iostream>
 
-const vec3 BezierCurve::POINT_COLOR = vec3(1, 0, 0);
-const vec3 BezierCurve::POLYGON_COLOR = vec3(0, 1, 0);
-const vec3 BezierCurve::CURVE_COLOR = vec3(0, 0, 1);
+constexpr vec3 BezierCurve::POINT_COLOR;
+constexpr vec3 BezierCurve::POLYGON_COLOR;
+constexpr vec3 BezierCurve::CURVE_COLOR;
 
 BezierCurve::BezierCurve(vector<vec3> controlPoints, int iterations, int offset)
-        : controlPoints(std::move(controlPoints)),
+        : controlPoints(move(controlPoints)),
           iterations(iterations),
           offset(offset) {
     update();
@@ -22,6 +24,69 @@ void BezierCurve::update() {
 void BezierCurve::setPicked(int i, vec3 picked) {
     controlPoints[i - offset] = picked;
     update();
+}
+
+float perp(vec3 u, vec3 v) {
+    return u.x * v.y - u.y * v.x;
+}
+
+optional<vec3> lineIntersection(const pair<vec3, vec3> &a, const pair<vec3, vec3> &b) {
+    vec3 u = a.second - a.first;
+    vec3 v = b.second - b.first;
+    vec3 w = a.first - b.first;
+    float d = perp(u, v);
+
+    float sI = perp(v, w) / d;
+    if (sI < 0 || sI > 1)
+        return {};
+
+    float tI = perp(u, w) / d;
+    if (tI < 0 || tI > 1)
+        return {};
+
+    return a.first + sI * u;
+}
+
+bool isFlat(const vector<vec3> &mesh, float epsilon) {
+    for (int i = 1; i < mesh.size() - 1; ++i) {
+        auto length = length2((mesh[i + 1] - mesh[i]) - (mesh[i] - mesh[i - 1]));
+        if (length > epsilon)
+            return false;
+    }
+    return true;
+}
+
+vector<vec3> BezierCurve::intersectsRecursive(const vector<vec3> &v1, const vector<vec3> &v2, float epsilon) const {
+    auto v1BB = AABB::createFromMesh(v1);
+    auto v2BB = AABB::createFromMesh(v2);
+
+    if (v1BB.intersects(v2BB)) {
+        if (!isFlat(v1, epsilon)) {
+            auto result = deCasteljau(v1);
+            auto i1 = intersectsRecursive(result.first, v2, epsilon);
+            auto i2 = intersectsRecursive(result.second, v2, epsilon);
+            i1.insert(i1.end(), i2.begin(), i2.end());
+            return i1;
+        } else if (!isFlat(v2, epsilon)) {
+            auto result = deCasteljau(v2);
+            auto i1 = intersectsRecursive(v1, result.first, epsilon);
+            auto i2 = intersectsRecursive(v1, result.second, epsilon);
+            i1.insert(i1.end(), i2.begin(), i2.end());
+            return i1;
+        } else {
+            auto result = lineIntersection({v1.front(), v1.back()}, {v2.front(), v2.back()});
+            auto resultVector = vector<vec3>();
+
+            if (result)
+                resultVector.push_back(result.value());
+
+            return resultVector;
+        }
+    } else return {};
+}
+
+vector<vec3> BezierCurve::intersects(const BezierCurve &other) const {
+    return intersectsRecursive(this->controlPoints, other.controlPoints, 0.0001f);
 }
 
 void BezierCurve::draw() const {
@@ -62,7 +127,7 @@ void BezierCurve::drawCurve() const {
     glEnd();
 }
 
-pair<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &currPoints) {
+pair<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &currPoints) const {
     size_t n = currPoints.size();
     vector<vector<vec3>> values(n, std::vector<vec3>(n));
 
@@ -86,15 +151,15 @@ pair<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &cu
         p2.push_back(values[n - i - 1][n - 1]);
     }
 
-    return pair<vector<vec3>, vector<vec3>>(p1, p2);
+    return {p1, p2};
 }
 
 void BezierCurve::plotBezier(const vector<vec3> &currPoints, int k) {
     if (k == 0) {
         curvePoints.insert(curvePoints.end(), currPoints.begin(), currPoints.end());
     } else {
-        pair<vector<vec3>, vector<vec3>> divided = deCasteljau(currPoints);
-        plotBezier(divided.first, k - 1);
-        plotBezier(divided.second, k - 1);
+        auto result = deCasteljau(currPoints);
+        plotBezier(result.first, k - 1);
+        plotBezier(result.second, k - 1);
     }
 }
