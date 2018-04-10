@@ -76,10 +76,10 @@ vector<vec3> BezierCurve::intersectsRecursive(const vector<vec3> &v1, const vect
             return i1;
         } else {
             auto result = lineIntersection({v1.front(), v1.back()}, {v2.front(), v2.back()});
-            auto resultVector = vector<vec3>();
+            vector<vec3> resultVector;
 
             if (result)
-                resultVector.push_back(result.value());
+                resultVector.push_back(*result);
 
             return resultVector;
         }
