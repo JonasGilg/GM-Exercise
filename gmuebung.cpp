@@ -10,6 +10,7 @@
 #include <vector>
 #include <glm/gtc/type_ptr.hpp>
 #include <memory>
+#include <iostream>
 
 #include "BezierCurve.h"
 
@@ -22,12 +23,13 @@ unique_ptr<BezierCurve> curve1;
 unique_ptr<BezierCurve> curve2;
 int picked_pos = -1;
 
+vector<vec3> intersections;
+
 void drawAll() {
     curve1->draw();
     curve2->draw();
 
     glColor3f(1.0f, 0.0f, 0.0f);
-    auto intersections = curve1->intersects(*curve2);
     glBegin(GL_POINTS);
     for (auto&& point : intersections)
         glVertex3fv(value_ptr(point));
@@ -40,15 +42,15 @@ void drawPoints() {
     glPopName();
 }
 
-int processHits(GLint hits, GLuint buffer[]) {
+int processHits(GLint hits, array<GLuint, BUFFER_SIZE> buffer) {
     int result = -1;
 
-    GLuint *ptr = buffer;
-    for (int i = 0; i < hits; i++) { /*  for each hit  */
+    GLuint *ptr = buffer.data();
+    for (int i = 0; i < hits; i++) { //for each hit
         GLuint names = *ptr;
         ptr += 3;
 
-        for (int j = 0; j < names; j++) { /*  for each name */
+        for (int j = 0; j < names; j++) { //for each name
             result = (int) *ptr;
             ptr++;
         }
@@ -58,12 +60,12 @@ int processHits(GLint hits, GLuint buffer[]) {
 }
 
 int pickPoints(int x, int y) {
-    GLuint selectBuf[BUFFER_SIZE];
+    array<GLuint, BUFFER_SIZE> selectBuf{};
     GLint hits;
-    GLint viewport[4];
+    array<GLint, 4> viewport{};
 
-    glGetIntegerv(GL_VIEWPORT, viewport);
-    glSelectBuffer(BUFFER_SIZE, selectBuf);
+    glGetIntegerv(GL_VIEWPORT, viewport.data());
+    glSelectBuffer(BUFFER_SIZE, selectBuf.data());
     glRenderMode(GL_SELECT);
     glInitNames();
     glPushName(0);
@@ -72,7 +74,7 @@ int pickPoints(int x, int y) {
     glPushMatrix();
     glLoadIdentity();
 
-    gluPickMatrix(static_cast<double>(x), static_cast<double>(viewport[3] - y), 8.0, 8.0, viewport);
+    gluPickMatrix(static_cast<double>(x), static_cast<double>(viewport[3] - y), 8.0, 8.0, viewport.data());
     gluPerspective(60.0, static_cast<double>(viewport[2]) / static_cast<double>(viewport[3]), 1.0, 20.0);
     drawPoints();
 
@@ -96,28 +98,30 @@ void mousePress(int button, int state, int x, int y) {
 }
 
 void mouseMove(int x, int y) {
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
+    array<GLint, 4> viewport{};
+    glGetIntegerv(GL_VIEWPORT, viewport.data());
 
     GLint new_pos_x = x;
     GLint new_pos_y = viewport[3] - y;
 
-    GLdouble cpm[16];
-    glGetDoublev(GL_PROJECTION_MATRIX, cpm);
+    array<GLdouble, 16> cpm{};
+    glGetDoublev(GL_PROJECTION_MATRIX, cpm.data());
 
-    GLdouble cmvm[16];
-    glGetDoublev(GL_MODELVIEW_MATRIX, cmvm);
+    array<GLdouble, 16> cmvm{};
+    glGetDoublev(GL_MODELVIEW_MATRIX, cmvm.data());
 
     GLdouble objx, objy, objz;
     GLfloat z;
 
     glReadPixels(new_pos_x, new_pos_y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
-    gluUnProject(new_pos_x, new_pos_y, z, cmvm, cpm, viewport, &objx, &objy, &objz);
+    gluUnProject(new_pos_x, new_pos_y, z, cmvm.data(), cpm.data(), viewport.data(), &objx, &objy, &objz);
 
     if (picked_pos >= 0 && picked_pos < curve2->offset) {
         curve1->setPicked(picked_pos, vec3(static_cast<float>(objx), static_cast<float>(objy), round(static_cast<float>(objz))));
+        intersections = curve1->intersects(*curve2);
     } else if (picked_pos >= curve2->offset) {
         curve2->setPicked(picked_pos, vec3(static_cast<float>(objx), static_cast<float>(objy), round(static_cast<float>(objz))));
+        intersections = curve1->intersects(*curve2);
     }
 
     glutPostRedisplay();
