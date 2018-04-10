@@ -5,7 +5,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
 #include <optional>
-#include <glm/detail/type_vec3.hpp>
 
 constexpr float EPSILON = 0.0001f;
 

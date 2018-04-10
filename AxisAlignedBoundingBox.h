@@ -1,7 +1,7 @@
 #pragma once
 
-#include <glm/vec3.hpp>
 #include <vector>
+#include <glm/vec3.hpp>
 
 using namespace glm;
 using namespace std;

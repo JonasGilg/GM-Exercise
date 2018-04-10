@@ -4,10 +4,10 @@
 #include <windows.h>
 #endif //_WIN32
 
-#include <glm/vec3.hpp>
 #include <vector>
-#include <GL/gl.h>
 #include <tuple>
+#include <GL/gl.h>
+#include <glm/vec3.hpp>
 
 using namespace std;
 using namespace glm;
