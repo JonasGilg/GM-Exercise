@@ -7,13 +7,13 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(OpenGL REQUIRED)
 
 if(WIN32)
-    set(GLUT_glut_LIBRARY "D:/C++Libs/mingw/freeglut/freeglut-3.0.0/lib/libfreeglut.a")
+    set(GLUT_glut_LIBRARY "D:/C++Libs/mingw/freeglut/freeglut-3.0.0/lib/x64/libfreeglut.a")
     set(GLUT_INCLUDE_DIR "D:/C++Libs/mingw/freeglut/freeglut-3.0.0/include")
 endif()
 find_package(GLUT REQUIRED)
 
 if(WIN32)
-    set(GLM_INCLUDE_DIR "D:/C++Libs/all/glm/glm-0.9.8.5")
+    set(GLM_INCLUDE_DIR "D:/C++Libs/all/glm/glm-0.9.9.0")
     find_package(GLM REQUIRED)
 endif()
 

@@ -2,10 +2,12 @@
 #include "AxisAlignedBoundingBox.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
-#include <experimental/optional>
+#include <optional>
+#include <glm/detail/type_vec3.hpp>
 
-using namespace std::experimental;
+constexpr float EPSILON = 0.0001f;
 
 BezierCurve::BezierCurve(vector<vec3> controlPoints, vec3 pointColor, vec3 meshColor, vec3 curveColor, int offset)
         : controlPoints(move(controlPoints)),
@@ -47,30 +49,30 @@ optional<vec3> lineIntersection(const pair<vec3, vec3> &a, const pair<vec3, vec3
     return a.first + sI * u;
 }
 
-bool isFlat(const vector<vec3> &mesh, float epsilon) {
+bool isFlat(const vector<vec3> &mesh) {
     for (int i = 1; i < mesh.size() - 1; ++i) {
         auto length = length2((mesh[i + 1] - mesh[i]) - (mesh[i] - mesh[i - 1]));
-        if (length > epsilon)
+        if (length > EPSILON)
             return false;
     }
     return true;
 }
 
-vector<vec3> BezierCurve::intersectsRecursive(const vector<vec3> &v1, const vector<vec3> &v2, float epsilon) const {
+vector<vec3> BezierCurve::intersectsRecursive(const vector<vec3> &v1, const vector<vec3> &v2) const {
     auto v1BB = AABB::createFromMesh(v1);
     auto v2BB = AABB::createFromMesh(v2);
 
     if (v1BB.intersects(v2BB)) {
-        if (!isFlat(v1, epsilon)) {
-            auto result = deCasteljau(v1);
-            auto i1 = intersectsRecursive(result.first, v2, epsilon);
-            auto i2 = intersectsRecursive(result.second, v2, epsilon);
+        if (!isFlat(v1)) {
+            auto [v1a, v1b] = deCasteljau(v1);
+            auto i1 = intersectsRecursive(v1a, v2);
+            auto i2 = intersectsRecursive(v1b, v2);
             i1.insert(i1.end(), i2.begin(), i2.end());
             return i1;
-        } else if (!isFlat(v2, epsilon)) {
-            auto result = deCasteljau(v2);
-            auto i1 = intersectsRecursive(v1, result.first, epsilon);
-            auto i2 = intersectsRecursive(v1, result.second, epsilon);
+        } else if (!isFlat(v2)) {
+            auto [v2a, v2b] = deCasteljau(v2);
+            auto i1 = intersectsRecursive(v1, v2a);
+            auto i2 = intersectsRecursive(v1, v2b);
             i1.insert(i1.end(), i2.begin(), i2.end());
             return i1;
         } else {
@@ -86,7 +88,7 @@ vector<vec3> BezierCurve::intersectsRecursive(const vector<vec3> &v1, const vect
 }
 
 vector<vec3> BezierCurve::intersects(const BezierCurve &other) const {
-    return intersectsRecursive(this->controlPoints, other.controlPoints, 0.001f);
+    return intersectsRecursive(this->controlPoints, other.controlPoints);
 }
 
 void BezierCurve::draw() const {
@@ -126,7 +128,7 @@ void BezierCurve::drawCurve() const {
     glEnd();
 }
 
-pair<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &currPoints) const {
+tuple<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &currPoints) const {
     size_t n = currPoints.size();
     vector<vector<vec3>> values(n, std::vector<vec3>(n));
 
@@ -154,11 +156,11 @@ pair<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &cu
 }
 
 void BezierCurve::plotBezier(const vector<vec3> &currPoints) {
-    if (isFlat(currPoints, 0.001f)) {
+    if (isFlat(currPoints)) {
         curvePoints.insert(curvePoints.end(), currPoints.begin(), currPoints.end());
     } else {
-        auto result = deCasteljau(currPoints);
-        plotBezier(result.first);
-        plotBezier(result.second);
+        auto [c1, c2] = deCasteljau(currPoints);
+        plotBezier(c1);
+        plotBezier(c2);
     }
 }

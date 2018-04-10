@@ -1,8 +1,6 @@
-#ifdef WIN32
-
+#ifdef _WIN32
 #include <windows.h>
-
-#endif //WIN32
+#endif //_WIN32
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -31,7 +29,7 @@ void drawAll() {
     glColor3f(1.0f, 0.0f, 0.0f);
     auto intersections = curve1->intersects(*curve2);
     glBegin(GL_POINTS);
-    for (auto point : intersections)
+    for (auto&& point : intersections)
         glVertex3fv(value_ptr(point));
     glEnd();
 }
@@ -88,7 +86,7 @@ int pickPoints(int x, int y) {
 }
 
 void mousePress(int button, int state, int x, int y) {
-    if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_DOWN)) // && (glutGetModifiers() == GLUT_ACTIVE_CTRL))
+    if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_DOWN))
         picked_pos = pickPoints(x, y);
 
     if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_UP))

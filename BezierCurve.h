@@ -1,8 +1,13 @@
 #pragma once
 
+#ifdef _WIN32
+#include <windows.h>
+#endif //_WIN32
+
 #include <glm/vec3.hpp>
 #include <vector>
 #include <GL/gl.h>
+#include <tuple>
 
 using namespace std;
 using namespace glm;
@@ -25,8 +30,8 @@ public:
 
 private:
     void plotBezier(const vector<vec3> &currPoints);
-    pair<vector<vec3>, vector<vec3>> deCasteljau(const vector<vec3> &currPoints) const;
-    vector<vec3> intersectsRecursive(const vector<vec3> &v1, const vector<vec3> &v2, float epsilon) const;
+    tuple<vector<vec3>, vector<vec3>> deCasteljau(const vector<vec3> &currPoints) const;
+    vector<vec3> intersectsRecursive(const vector<vec3> &v1, const vector<vec3> &v2) const;
 
     void drawMesh() const;
     void drawCurve() const;
