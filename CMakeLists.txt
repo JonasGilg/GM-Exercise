@@ -39,6 +39,6 @@ message("")
 
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${GLUT_INCLUDE_DIR})
 
-add_executable(gm_exercise gmuebung.cpp BezierCurve.cpp BezierCurve.h AxisAlignedBoundingBox.cpp AxisAlignedBoundingBox.h)
+add_executable(gm_exercise gmuebung.cpp BezierCurve.cpp BezierCurve.h AxisAlignedBoundingBox.cpp AxisAlignedBoundingBox.h Array.h)
 
 target_link_libraries(gm_exercise ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
