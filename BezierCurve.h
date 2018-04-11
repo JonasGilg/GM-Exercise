@@ -14,7 +14,7 @@ using namespace glm;
 
 class BezierCurve {
 public:
-    BezierCurve(vector<vec3> controlPoints, vec3 pointColor, vec3 meshColor, vec3 curveColor, int offset);
+    BezierCurve(const vector<vec3> &controlPoints, vec3 pointColor, vec3 meshColor, vec3 curveColor);
 
     void update();
     void draw() const;
@@ -26,8 +26,8 @@ public:
 
     virtual ~BezierCurve() = default;
 
-    const int offset;
-
+    unsigned long offset;
+    unsigned long offsetEnd;
 private:
     void plotBezier(const vector<vec3> &currPoints);
     pair<vector<vec3>, vector<vec3>> deCasteljau(const vector<vec3> &currPoints) const;
@@ -42,4 +42,6 @@ private:
     const vec3 pointColor;
     const vec3 meshColor;
     const vec3 curveColor;
+
+    static unsigned long offsetCounter;
 };

@@ -116,10 +116,10 @@ void mouseMove(int x, int y) {
     glReadPixels(new_pos_x, new_pos_y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
     gluUnProject(new_pos_x, new_pos_y, z, cmvm.data(), cpm.data(), viewport.data(), &objx, &objy, &objz);
 
-    if (picked_pos >= 0 && picked_pos < curve2->offset) {
+    if (picked_pos >= 0 && picked_pos < reinterpret_cast<intptr_t >(&*curve2)) {
         curve1->setPicked(picked_pos, vec3(static_cast<float>(objx), static_cast<float>(objy), round(static_cast<float>(objz))));
         intersections = curve1->intersects(*curve2);
-    } else if (picked_pos >= curve2->offset) {
+    } else if (picked_pos >= reinterpret_cast<intptr_t >(&*curve2)) {
         curve2->setPicked(picked_pos, vec3(static_cast<float>(objx), static_cast<float>(objy), round(static_cast<float>(objz))));
         intersections = curve1->intersects(*curve2);
     }
@@ -139,7 +139,7 @@ void init() {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glShadeModel(GL_FLAT);
     glEnable(GL_POINT_SMOOTH);
-    glPointSize(8.0);
+    glPointSize(10.0);
 
     curve1 = make_unique<BezierCurve>(vector<vec3>{
             vec3(-4.0f, 0.0f, -15.0f),
@@ -147,7 +147,7 @@ void init() {
             vec3(-12.0f, 4.0f, -15.0f),
             vec3(-12.0f, 0.0f, -15.0f),
             vec3(-8.0f, 0.0f, -15.0f)
-    }, vec3(0.2f, 0.2f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.6f, 0.6f, 1.0f), 0);
+    }, vec3(0.2f, 0.2f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.6f, 0.6f, 1.0f));
 
     curve2 = make_unique<BezierCurve>(vector<vec3>{
             vec3(4.0f, 0.0f, -15.0f),
@@ -155,7 +155,7 @@ void init() {
             vec3(12.0f, 4.0f, -15.0f),
             vec3(12.0f, 0.0f, -15.0f),
             vec3(8.0f, 0.0f, -15.0f)
-    }, vec3(0.2f, 1.0f, 0.2f), vec3(1.0f, 1.0f, 0.0f), vec3(0.6f, 1.0f, 0.6f), 5);
+    }, vec3(0.2f, 1.0f, 0.2f), vec3(1.0f, 1.0f, 0.0f), vec3(0.6f, 1.0f, 0.6f));
 }
 
 void reshape(GLsizei w, GLsizei h) {

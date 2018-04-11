@@ -7,18 +7,23 @@
 #include <glm/gtx/norm.hpp>
 
 #include <experimental/optional>
+#include <iostream>
 
 using namespace std::experimental;
 
 constexpr float EPSILON = 0.0001f;
 
-BezierCurve::BezierCurve(vector<vec3> controlPoints, vec3 pointColor, vec3 meshColor, vec3 curveColor, int offset)
-        : controlPoints(move(controlPoints)),
+unsigned long BezierCurve::offsetCounter = 0;
+
+BezierCurve::BezierCurve(const vector<vec3> &controlPoints, vec3 pointColor, vec3 meshColor, vec3 curveColor)
+        : controlPoints(controlPoints),
           pointColor(pointColor),
           meshColor(meshColor),
           curveColor(curveColor),
-          offset(offset) {
+          offset(offsetCounter),
+          offsetEnd(offsetCounter + controlPoints.size()){
     update();
+    offsetCounter = offsetEnd;
 }
 
 void BezierCurve::update() {
@@ -27,7 +32,7 @@ void BezierCurve::update() {
 }
 
 void BezierCurve::setPicked(int i, vec3 picked) {
-    controlPoints[i - offset] = picked;
+    controlPoints[i - reinterpret_cast<intptr_t>(this)] = picked;
     update();
 }
 
@@ -105,7 +110,7 @@ void BezierCurve::drawPoints(GLenum mode) const {
 
     for (int i = 0; i < controlPoints.size(); i++) {
         if (mode == GL_SELECT)
-            glLoadName(static_cast<GLuint>(i + offset));
+            glLoadName(static_cast<GLuint>(i + reinterpret_cast<intptr_t>(this)));
 
         glBegin(GL_POINTS);
         glVertex3fv(value_ptr(controlPoints[i]));
