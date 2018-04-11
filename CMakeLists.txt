@@ -18,7 +18,7 @@ if (WIN32)
         message("32bit")
     endif ()
 
-    # Get Path to C++ library directory and store ot in "C++LIBS" variable
+    # Get Path to C++ library directory and store it in "C++LIBS" variable
     file(TO_CMAKE_PATH $ENV{CPP_LIBS} C++LIBS)
 
     # Check toolchain, 32/64bit and set variables accordingly
