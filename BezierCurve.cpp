@@ -5,9 +5,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
-
 #include <experimental/optional>
-#include <iostream>
 
 using namespace std::experimental;
 
@@ -32,7 +30,7 @@ void BezierCurve::update() {
 }
 
 void BezierCurve::setPicked(int i, vec3 picked) {
-    controlPoints[i - reinterpret_cast<intptr_t>(this)] = picked;
+    controlPoints[i - offset] = picked;
     update();
 }
 
@@ -110,7 +108,7 @@ void BezierCurve::drawPoints(GLenum mode) const {
 
     for (int i = 0; i < controlPoints.size(); i++) {
         if (mode == GL_SELECT)
-            glLoadName(static_cast<GLuint>(i + reinterpret_cast<intptr_t>(this)));
+            glLoadName(static_cast<GLuint>(i + offset));
 
         glBegin(GL_POINTS);
         glVertex3fv(value_ptr(controlPoints[i]));

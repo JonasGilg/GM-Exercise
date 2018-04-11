@@ -29,7 +29,6 @@ message("GLUT_INCLUDE_DIR: ${GLUT_INCLUDE_DIR}")
 
 if (WIN32)
     set(GLM_INCLUDE_DIR "${C++LIBS}/all/glm/glm-0.9.9.0")
-    find_package(GLM REQUIRED)
 endif ()
 
 message("")

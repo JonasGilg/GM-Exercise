@@ -1,5 +1,7 @@
 #ifdef _WIN32
+
 #include <windows.h>
+
 #endif //_WIN32
 
 #include <GL/gl.h>
@@ -19,6 +21,8 @@ using namespace glm;
 
 constexpr int BUFFER_SIZE = 512;
 
+vector<BezierCurve> curves;
+
 unique_ptr<BezierCurve> curve1;
 unique_ptr<BezierCurve> curve2;
 int picked_pos = -1;
@@ -26,19 +30,21 @@ int picked_pos = -1;
 vector<vec3> intersections;
 
 void drawAll() {
-    curve1->draw();
-    curve2->draw();
+    for (auto &&curve : curves) {
+        curve.draw();
+    }
 
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_POINTS);
-    for (auto&& point : intersections)
+    for (auto &&point : intersections)
         glVertex3fv(value_ptr(point));
     glEnd();
 }
 
 void drawPoints() {
-    curve1->drawPoints(GL_SELECT);
-    curve2->drawPoints(GL_SELECT);
+    for (auto &&curve : curves) {
+        curve.drawPoints(GL_SELECT);
+    }
     glPopName();
 }
 
@@ -116,12 +122,23 @@ void mouseMove(int x, int y) {
     glReadPixels(new_pos_x, new_pos_y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
     gluUnProject(new_pos_x, new_pos_y, z, cmvm.data(), cpm.data(), viewport.data(), &objx, &objy, &objz);
 
-    if (picked_pos >= 0 && picked_pos < reinterpret_cast<intptr_t >(&*curve2)) {
-        curve1->setPicked(picked_pos, vec3(static_cast<float>(objx), static_cast<float>(objy), round(static_cast<float>(objz))));
-        intersections = curve1->intersects(*curve2);
-    } else if (picked_pos >= reinterpret_cast<intptr_t >(&*curve2)) {
-        curve2->setPicked(picked_pos, vec3(static_cast<float>(objx), static_cast<float>(objy), round(static_cast<float>(objz))));
-        intersections = curve1->intersects(*curve2);
+    if (picked_pos >= 0) {
+        for (auto &&curve : curves) {
+            if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
+                cout << picked_pos << endl;
+                curve.setPicked(picked_pos, vec3(static_cast<float>(objx),
+                                                 static_cast<float>(objy),
+                                                 round(static_cast<float>(objz))));
+            }
+        }
+
+        intersections.clear();
+        for (int i = 0; i < curves.size(); ++i) {
+            for (int j = i + 1; j < curves.size(); ++j) {
+                auto intersects = curves[i].intersects(curves[j]);
+                intersections.insert(intersections.begin(), intersects.begin(), intersects.end());
+            }
+        }
     }
 
     glutPostRedisplay();
@@ -141,7 +158,7 @@ void init() {
     glEnable(GL_POINT_SMOOTH);
     glPointSize(10.0);
 
-    curve1 = make_unique<BezierCurve>(vector<vec3>{
+    curves.emplace_back(vector<vec3>{
             vec3(-4.0f, 0.0f, -15.0f),
             vec3(-4.0f, 4.0f, -15.0f),
             vec3(-12.0f, 4.0f, -15.0f),
@@ -149,7 +166,7 @@ void init() {
             vec3(-8.0f, 0.0f, -15.0f)
     }, vec3(0.2f, 0.2f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.6f, 0.6f, 1.0f));
 
-    curve2 = make_unique<BezierCurve>(vector<vec3>{
+    curves.emplace_back(vector<vec3>{
             vec3(4.0f, 0.0f, -15.0f),
             vec3(4.0f, 4.0f, -15.0f),
             vec3(12.0f, 4.0f, -15.0f),
