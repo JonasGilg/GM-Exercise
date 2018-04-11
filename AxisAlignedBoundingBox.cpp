@@ -20,5 +20,5 @@ AxisAlignedBoundingBox AxisAlignedBoundingBox::createFromMesh(const vector<vec3>
         if (point.z > max.z) max.z = point.z;
     }
 
-    return AxisAlignedBoundingBox{min, max};
+    return {min, max};
 }

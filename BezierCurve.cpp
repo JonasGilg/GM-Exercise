@@ -1,15 +1,14 @@
+#include <glm/gtc/type_ptr.hpp>
+#include <experimental/optional>
+#include <iostream>
+
 #include "BezierCurve.h"
 #include "AxisAlignedBoundingBox.h"
-
-#include <glm/gtc/type_ptr.hpp>
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/norm.hpp>
-#include <experimental/optional>
+#include "Line.h"
 
 using namespace std::experimental;
 
-constexpr float EPSILON = 0.0001f;
+constexpr float EPSILON = 0.001f;
 
 unsigned long BezierCurve::offsetCounter = 0;
 
@@ -19,7 +18,7 @@ BezierCurve::BezierCurve(const vector<vec3> &controlPoints, vec3 pointColor, vec
           meshColor(meshColor),
           curveColor(curveColor),
           offset(offsetCounter),
-          offsetEnd(offsetCounter + controlPoints.size()){
+          offsetEnd(offsetCounter + controlPoints.size()) {
     update();
     offsetCounter = offsetEnd;
 }
@@ -38,10 +37,10 @@ float perp(vec3 u, vec3 v) {
     return u.x * v.y - u.y * v.x;
 }
 
-optional<vec3> lineIntersection(const pair<vec3, vec3> &a, const pair<vec3, vec3> &b) {
-    vec3 u = a.second - a.first;
-    vec3 v = b.second - b.first;
-    vec3 w = a.first - b.first;
+optional<vec3> lineIntersection(const Line &a, const Line &b) {
+    vec3 u = a.direction();
+    vec3 v = b.direction();
+    vec3 w = a.start - b.start;
     float d = perp(u, v);
 
     float sI = perp(v, w) / d;
@@ -52,12 +51,12 @@ optional<vec3> lineIntersection(const pair<vec3, vec3> &a, const pair<vec3, vec3
     if (tI < 0 || tI > 1)
         return {};
 
-    return a.first + sI * u;
+    return a.start + sI * u;
 }
 
 bool isFlat(const vector<vec3> &mesh) {
     for (int i = 1; i < mesh.size() - 1; ++i) {
-        auto length = length2((mesh[i + 1] - mesh[i]) - (mesh[i] - mesh[i - 1]));
+        auto length = Line{mesh[i + 1] - mesh[i], mesh[i] - mesh[i - 1]}.magnitude();
         if (length > EPSILON)
             return false;
     }

@@ -13,8 +13,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <memory>
 #include <iostream>
+#include <ctime>
 
 #include "BezierCurve.h"
+#include "Util.h"
 
 using namespace std;
 using namespace glm;
@@ -23,8 +25,6 @@ constexpr int BUFFER_SIZE = 512;
 
 vector<BezierCurve> curves;
 
-unique_ptr<BezierCurve> curve1;
-unique_ptr<BezierCurve> curve2;
 int picked_pos = -1;
 
 vector<vec3> intersections;
@@ -88,9 +88,7 @@ int pickPoints(int x, int y) {
     glPopMatrix();
 
     hits = glRenderMode(GL_RENDER);
-    int result = processHits(hits, selectBuf);
-
-    return result;
+    return processHits(hits, selectBuf);
 }
 
 void mousePress(int button, int state, int x, int y) {
@@ -125,10 +123,7 @@ void mouseMove(int x, int y) {
     if (picked_pos >= 0) {
         for (auto &&curve : curves) {
             if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
-                cout << picked_pos << endl;
-                curve.setPicked(picked_pos, vec3(static_cast<float>(objx),
-                                                 static_cast<float>(objy),
-                                                 round(static_cast<float>(objz))));
+                curve.setPicked(picked_pos, {objx, objy, round(objz)});
             }
         }
 
@@ -136,7 +131,7 @@ void mouseMove(int x, int y) {
         for (int i = 0; i < curves.size(); ++i) {
             for (int j = i + 1; j < curves.size(); ++j) {
                 auto intersects = curves[i].intersects(curves[j]);
-                intersections.insert(intersections.begin(), intersects.begin(), intersects.end());
+                intersections.insert(intersections.end(), intersects.begin(), intersects.end());
             }
         }
     }
@@ -148,7 +143,9 @@ void display() {
     glMatrixMode(GL_MODELVIEW);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3f(1.0f, 1.0f, 1.0f);
+
     drawAll();
+
     glutSwapBuffers();
 }
 
@@ -159,20 +156,28 @@ void init() {
     glPointSize(10.0);
 
     curves.emplace_back(vector<vec3>{
-            vec3(-4.0f, 0.0f, -15.0f),
-            vec3(-4.0f, 4.0f, -15.0f),
-            vec3(-12.0f, 4.0f, -15.0f),
-            vec3(-12.0f, 0.0f, -15.0f),
-            vec3(-8.0f, 0.0f, -15.0f)
+            {-4.0f,  2.0f, -15.0f},
+            {-4.0f,  6.0f, -15.0f},
+            {-12.0f, 6.0f, -15.0f},
+            {-12.0f, 2.0f, -15.0f},
+            {-8.0f,  2.0f, -15.0f}
     }, vec3(0.2f, 0.2f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.6f, 0.6f, 1.0f));
 
     curves.emplace_back(vector<vec3>{
-            vec3(4.0f, 0.0f, -15.0f),
-            vec3(4.0f, 4.0f, -15.0f),
-            vec3(12.0f, 4.0f, -15.0f),
-            vec3(12.0f, 0.0f, -15.0f),
-            vec3(8.0f, 0.0f, -15.0f)
+            {4.0f,  2.0f, -15.0f},
+            {4.0f,  6.0f, -15.0f},
+            {12.0f, 6.0f, -15.0f},
+            {12.0f, 2.0f, -15.0f},
+            {8.0f,  2.0f, -15.0f}
     }, vec3(0.2f, 1.0f, 0.2f), vec3(1.0f, 1.0f, 0.0f), vec3(0.6f, 1.0f, 0.6f));
+
+    curves.emplace_back(vector<vec3>{
+            {-4.0f, -6.0f, -15.0f},
+            {-4.0f, -2.0f, -15.0f},
+            {4.0f,  -2.0f, -15.0f},
+            {4.0f,  -6.0f, -15.0f},
+            {0.0f,  -6.0f, -15.0f}
+    }, vec3(0.2f, 0.2f, 0.2f), vec3(1.0f, 1.0f, 1.0f), vec3(0.6f, 0.6f, 0.6f));
 }
 
 void reshape(GLsizei w, GLsizei h) {
@@ -187,26 +192,6 @@ void reshape(GLsizei w, GLsizei h) {
 
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
-        case 's':
-            // do something
-            glutPostRedisplay();
-            break;
-        case 'i':
-            // do something
-            glutPostRedisplay();
-            break;
-        case 'c':
-            // do something
-            glutPostRedisplay();
-            break;
-        case 'y':
-            // do something
-            glutPostRedisplay();
-            break;
-        case 'z':
-            // do something
-            glutPostRedisplay();
-            break;
         default:
             break;
     }
