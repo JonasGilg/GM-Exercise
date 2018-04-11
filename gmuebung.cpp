@@ -24,10 +24,9 @@ using namespace glm;
 constexpr int BUFFER_SIZE = 512;
 
 vector<BezierCurve> curves;
+vector<vec3> intersections;
 
 int picked_pos = -1;
-
-vector<vec3> intersections;
 
 void drawAll() {
     for (auto &&curve : curves) {

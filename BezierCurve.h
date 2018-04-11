@@ -11,44 +11,41 @@
 #include <GL/gl.h>
 #include <glm/vec3.hpp>
 
-using namespace std;
-using namespace glm;
-
 struct BezierCurve {
-    BezierCurve(const vector<vec3> &controlPoints, vec3 pointColor, vec3 meshColor, vec3 curveColor);
+    BezierCurve(const std::vector<glm::vec3> &controlPoints,
+                glm::vec3 pointColor,
+                glm::vec3 meshColor,
+                glm::vec3 curveColor);
 
-    void update();
+    void setPicked(int i, glm::vec3 picked);
 
     void draw() const;
-
     void drawPoints(GLenum mode) const;
 
-    void setPicked(int i, vec3 picked);
-
-    vector<vec3> intersects(const BezierCurve &other) const;
+    std::vector<glm::vec3> intersects(const BezierCurve &other) const;
 
     virtual ~BezierCurve() = default;
 
-    unsigned long offset;
-    unsigned long offsetEnd;
+    const unsigned long offset;
+    const unsigned long offsetEnd;
 
 private:
-    void plotBezier(const vector<vec3> &currPoints);
+    void update();
 
-    pair<vector<vec3>, vector<vec3>> deCasteljau(const vector<vec3> &currPoints) const;
+    void plotBezier(const std::vector<glm::vec3> &currPoints);
+    std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> deCasteljau(const std::vector<glm::vec3> &currPoints) const;
 
-    vector<vec3> intersectsRecursive(const vector<vec3> &v1, const vector<vec3> &v2) const;
+    std::vector<glm::vec3> intersectsRecursive(const std::vector<glm::vec3> &v1, const std::vector<glm::vec3> &v2) const;
 
     void drawMesh() const;
-
     void drawCurve() const;
 
-    vector<vec3> controlPoints;
-    vector<vec3> curvePoints;
+    std::vector<glm::vec3> controlPoints;
+    std::vector<glm::vec3> curvePoints;
 
-    const vec3 pointColor;
-    const vec3 meshColor;
-    const vec3 curveColor;
+    const glm::vec3 pointColor;
+    const glm::vec3 meshColor;
+    const glm::vec3 curveColor;
 
     static unsigned long offsetCounter;
 };

@@ -6,13 +6,18 @@
 #include "AxisAlignedBoundingBox.h"
 #include "Line.h"
 
-using namespace std::experimental;
+using namespace std;
+using namespace experimental;
+using namespace glm;
 
 constexpr float EPSILON = 0.001f;
 
 unsigned long BezierCurve::offsetCounter = 0;
 
-BezierCurve::BezierCurve(const vector<vec3> &controlPoints, vec3 pointColor, vec3 meshColor, vec3 curveColor)
+BezierCurve::BezierCurve(const vector<vec3> &controlPoints,
+                         vec3 pointColor,
+                         vec3 meshColor,
+                         vec3 curveColor)
         : controlPoints(controlPoints),
           pointColor(pointColor),
           meshColor(meshColor),
@@ -38,8 +43,8 @@ float perp(vec3 u, vec3 v) {
 }
 
 optional<vec3> lineIntersection(const Line &a, const Line &b) {
-    vec3 u = a.direction();
-    vec3 v = b.direction();
+    vec3 u = a.direction;
+    vec3 v = b.direction;
     vec3 w = a.start - b.start;
     float d = perp(u, v);
 
@@ -56,8 +61,7 @@ optional<vec3> lineIntersection(const Line &a, const Line &b) {
 
 bool isFlat(const vector<vec3> &mesh) {
     for (int i = 1; i < mesh.size() - 1; ++i) {
-        auto length = Line{mesh[i + 1] - mesh[i], mesh[i] - mesh[i - 1]}.magnitude();
-        if (length > EPSILON)
+        if (Line(mesh[i + 1] - mesh[i], mesh[i] - mesh[i - 1]).magnitude > EPSILON)
             return false;
     }
     return true;

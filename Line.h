@@ -3,15 +3,16 @@
 #include <glm/vec3.hpp>
 
 struct Line {
-    const glm::vec3 start;
-    const glm::vec3 end;
+    const glm::vec3 start{};
+    const glm::vec3 end{};
+    const glm::vec3 direction{};
+    const float magnitude;
 
-    glm::vec3 direction() const {
-        return end - start;
-    }
+    Line(const glm::vec3 &start, const glm::vec3 &end)
+            : start(start),
+              end(end),
+              direction(end - start),
+              magnitude(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z) {}
 
-    float magnitude() const {
-        glm::vec3 v = direction();
-        return v.x * v.x + v.y * v.y + v.z * v.z;
-    }
+    virtual ~Line() = default;
 };

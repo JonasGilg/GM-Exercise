@@ -3,16 +3,13 @@
 #include <vector>
 #include <glm/vec3.hpp>
 
-using namespace glm;
-using namespace std;
-
 struct AxisAlignedBoundingBox {
-    const vec3 min;
-    const vec3 max;
+    const glm::vec3 min;
+    const glm::vec3 max;
 
     bool intersects(const AxisAlignedBoundingBox &other) const;
 
-    static AxisAlignedBoundingBox createFromMesh(const vector<vec3> &mesh);
+    static AxisAlignedBoundingBox createFromMesh(const std::vector<glm::vec3> &mesh);
 };
 
 typedef AxisAlignedBoundingBox AABB;

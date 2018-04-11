@@ -6,9 +6,9 @@ bool AxisAlignedBoundingBox::intersects(const AxisAlignedBoundingBox &other) con
            (this->min.z <= other.max.z && this->max.z >= other.min.z);
 }
 
-AxisAlignedBoundingBox AxisAlignedBoundingBox::createFromMesh(const vector<vec3> &mesh) {
-    vec3 min = mesh[0];
-    vec3 max = mesh[0];
+AxisAlignedBoundingBox AxisAlignedBoundingBox::createFromMesh(const std::vector<glm::vec3> &mesh) {
+    glm::vec3 min = mesh[0];
+    glm::vec3 max = mesh[0];
 
     for (auto &&point : mesh) {
         if (point.x < min.x) min.x = point.x;
