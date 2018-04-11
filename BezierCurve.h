@@ -30,7 +30,7 @@ public:
 
 private:
     void plotBezier(const vector<vec3> &currPoints);
-    tuple<vector<vec3>, vector<vec3>> deCasteljau(const vector<vec3> &currPoints) const;
+    pair<vector<vec3>, vector<vec3>> deCasteljau(const vector<vec3> &currPoints) const;
     vector<vec3> intersectsRecursive(const vector<vec3> &v1, const vector<vec3> &v2) const;
 
     void drawMesh() const;

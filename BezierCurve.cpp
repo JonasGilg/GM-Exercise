@@ -2,9 +2,13 @@
 #include "AxisAlignedBoundingBox.h"
 
 #include <glm/gtc/type_ptr.hpp>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
-#include <optional>
+
+#include <experimental/optional>
+
+using namespace std::experimental;
 
 constexpr float EPSILON = 0.0001f;
 
@@ -63,15 +67,15 @@ vector<vec3> BezierCurve::intersectsRecursive(const vector<vec3> &v1, const vect
 
     if (v1BB.intersects(v2BB)) {
         if (!isFlat(v1)) {
-            auto [v1a, v1b] = deCasteljau(v1);
-            auto i1 = intersectsRecursive(v1a, v2);
-            auto i2 = intersectsRecursive(v1b, v2);
+            auto result = deCasteljau(v1);
+            auto i1 = intersectsRecursive(result.first, v2);
+            auto i2 = intersectsRecursive(result.second, v2);
             i1.insert(i1.end(), i2.begin(), i2.end());
             return i1;
         } else if (!isFlat(v2)) {
-            auto [v2a, v2b] = deCasteljau(v2);
-            auto i1 = intersectsRecursive(v1, v2a);
-            auto i2 = intersectsRecursive(v1, v2b);
+            auto result = deCasteljau(v2);
+            auto i1 = intersectsRecursive(v1, result.first);
+            auto i2 = intersectsRecursive(v1, result.second);
             i1.insert(i1.end(), i2.begin(), i2.end());
             return i1;
         } else {
@@ -127,7 +131,7 @@ void BezierCurve::drawCurve() const {
     glEnd();
 }
 
-tuple<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &currPoints) const {
+pair<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &currPoints) const {
     size_t n = currPoints.size();
     vector<vector<vec3>> values(n, std::vector<vec3>(n));
 
@@ -158,8 +162,8 @@ void BezierCurve::plotBezier(const vector<vec3> &currPoints) {
     if (isFlat(currPoints)) {
         curvePoints.insert(curvePoints.end(), currPoints.begin(), currPoints.end());
     } else {
-        auto [c1, c2] = deCasteljau(currPoints);
-        plotBezier(c1);
-        plotBezier(c2);
+        auto c = deCasteljau(currPoints);
+        plotBezier(c.first);
+        plotBezier(c.second);
     }
 }
