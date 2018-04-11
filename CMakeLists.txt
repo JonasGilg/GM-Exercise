@@ -92,7 +92,7 @@ message("")
 ### LINK AND BUILD #####################################################################################################
 
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${GLUT_INCLUDE_DIR})
-add_executable(gm_exercise gmuebung.cpp BezierCurve.cpp BezierCurve.h AxisAlignedBoundingBox.cpp AxisAlignedBoundingBox.h Line.h Util.h)
+add_executable(gm_exercise src/gmuebung.cpp src/BezierCurve.cpp src/BezierCurve.h src/AxisAlignedBoundingBox.cpp src/AxisAlignedBoundingBox.h src/Line.h src/Util.h)
 target_link_libraries(gm_exercise ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
 
 ### END LINK AND BUILD #################################################################################################
