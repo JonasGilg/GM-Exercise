@@ -6,16 +6,17 @@ set(CMAKE_CXX_STANDARD 17)
 ###############################################
 ### SETUP FOR WINDOWS #########################
 
+message("SYSTEM AND BUILD INFORMATION:")
 if (WIN32)
-    message("Using WIN32")
+    message(STATUS "Platform: Windows")
 
     # Check if 64bit is enabled
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(64BIT "TRUE")
-        message("64bit")
+        message(STATUS "64bit")
     elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
         set(64BIT "FALSE")
-        message("32bit")
+        message(STATUS "32bit")
     endif ()
 
     # Get Path to C++ library directory and store it in "C++LIBS" variable
@@ -23,7 +24,7 @@ if (WIN32)
 
     # Check toolchain, 32/64bit and set variables accordingly
     if (MINGW)
-        message("Using MinGW")
+        message(STATUS "Toolchain: MinGW")
 
         if (64BIT)
             # GLUT 64
@@ -35,7 +36,7 @@ if (WIN32)
             set(GLUT_INCLUDE_DIR "${C++LIBS}/mingw/freeglut/freeglut-3.0.0/include")
         endif ()
     elseif (MSVC)
-        message("Using MSVC")
+        message(STATUS "Toolchain: MSVC")
 
         if (64BIT)
             # GLUT 64
@@ -50,7 +51,11 @@ if (WIN32)
 
     # Set path for GLM
     set(GLM_INCLUDE_DIR "${C++LIBS}/all/glm/glm-0.9.9.0")
+else()
+    message(STATUS "Platform: Linux")
 endif ()
+
+message("\n#####################################")
 
 ### END SETUP FOR WINDOWS ##############################################################################################
 ########################################################################################################################
@@ -59,9 +64,9 @@ endif ()
 find_package(OpenGL REQUIRED)
 
 message("")
-message("OPENGL_FOUND: ${OPENGL_FOUND}")
-message("OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
-message("OPENGL_INCLUDE_DIRS: ${OPENGL_INCLUDE_DIRS}")
+message(STATUS "OPENGL_FOUND: ${OPENGL_FOUND}")
+message(STATUS "OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
+message(STATUS "OPENGL_INCLUDE_DIRS: ${OPENGL_INCLUDE_DIRS}")
 
 ### END OPENGL #########################################################################################################
 ########################################################################################################################
@@ -70,16 +75,16 @@ message("OPENGL_INCLUDE_DIRS: ${OPENGL_INCLUDE_DIRS}")
 find_package(GLUT REQUIRED)
 
 message("")
-message("GLUT_FOUND: ${GLUT_FOUND}")
-message("GLUT_glut_LIBRARY: ${GLUT_glut_LIBRARY}")
-message("GLUT_INCLUDE_DIR: ${GLUT_INCLUDE_DIR}")
+message(STATUS "GLUT_FOUND: ${GLUT_FOUND}")
+message(STATUS "GLUT_glut_LIBRARY: ${GLUT_glut_LIBRARY}")
+message(STATUS "GLUT_INCLUDE_DIR: ${GLUT_INCLUDE_DIR}")
 
 ### END GLUT ###########################################################################################################
 ########################################################################################################################
 ### CHECK GLM ##########################################################################################################
 
 message("")
-message("GLM_INCLUDE_DIR: ${GLM_INCLUDE_DIR}")
+message(STATUS "GLM_INCLUDE_DIR: ${GLM_INCLUDE_DIR}")
 message("")
 
 ### END GLM ############################################################################################################
