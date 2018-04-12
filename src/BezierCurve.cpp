@@ -6,6 +6,8 @@
 #include "AxisAlignedBoundingBox.h"
 #include "Line.h"
 
+using PointList = std::vector<glm::vec3>;
+
 using namespace std;
 using namespace experimental;
 using namespace glm;
@@ -14,7 +16,7 @@ constexpr float EPSILON = 0.001f;
 
 unsigned long BezierCurve::offsetCounter = 0;
 
-BezierCurve::BezierCurve(const vector<vec3> &controlPoints,
+BezierCurve::BezierCurve(const PointList &controlPoints,
                          vec3 pointColor,
                          vec3 meshColor,
                          vec3 curveColor)
@@ -59,7 +61,7 @@ optional<vec3> lineIntersection(const Line &a, const Line &b) {
     return a.start + sI * u;
 }
 
-bool isFlat(const vector<vec3> &mesh) {
+bool isFlat(const PointList &mesh) {
     for (int i = 1; i < mesh.size() - 1; ++i) {
         if (Line(mesh[i + 1] - mesh[i], mesh[i] - mesh[i - 1]).magnitude > EPSILON)
             return false;
@@ -67,15 +69,17 @@ bool isFlat(const vector<vec3> &mesh) {
     return true;
 }
 
-vector<vec3> BezierCurve::recurse(const vector<vec3> &curve1, const vector<vec3> &curve2) const {
-    auto result = deCasteljau(curve1);
-    auto intersections1 = intersectsRecursive(result.first, curve2);
-    auto intersections2 = intersectsRecursive(result.second, curve2);
+PointList BezierCurve::recurse(const PointList &curve1, const PointList &curve2) const {
+    PointList curve1A(curve1.begin(), curve1.begin() + curve1.size() / 2 + 1);
+    PointList curve1B(curve1.begin() + curve1.size() / 2, curve1.end());
+
+    auto intersections1 = intersectsRecursive(curve1A, curve2);
+    auto intersections2 = intersectsRecursive(curve1B, curve2);
     intersections1.insert(intersections1.end(), intersections2.begin(), intersections2.end());
     return intersections1;
 }
 
-vector<vec3> BezierCurve::intersectsRecursive(const vector<vec3> &curve1, const vector<vec3> &curve2) const {
+PointList BezierCurve::intersectsRecursive(const PointList &curve1, const PointList &curve2) const {
     auto curve1BB = AABB::createFromMesh(curve1);
     auto curve2BB = AABB::createFromMesh(curve2);
 
@@ -86,7 +90,7 @@ vector<vec3> BezierCurve::intersectsRecursive(const vector<vec3> &curve1, const 
             return recurse(curve2, curve1);
         } else {
             auto result = lineIntersection({curve1.front(), curve1.back()}, {curve2.front(), curve2.back()});
-            vector<vec3> resultVector;
+            PointList resultVector;
 
             if (result)
                 resultVector.push_back(*result);
@@ -96,8 +100,8 @@ vector<vec3> BezierCurve::intersectsRecursive(const vector<vec3> &curve1, const 
     } else return {};
 }
 
-vector<vec3> BezierCurve::intersects(const BezierCurve &other) const {
-    return intersectsRecursive(this->controlPoints, other.controlPoints);
+PointList BezierCurve::intersects(const BezierCurve &other) const {
+    return intersectsRecursive(this->curvePoints, other.curvePoints);
 }
 
 void BezierCurve::draw() const {
@@ -137,9 +141,9 @@ void BezierCurve::drawCurve() const {
     glEnd();
 }
 
-pair<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &currPoints) const {
+pair<PointList, PointList> BezierCurve::deCasteljau(const PointList &currPoints) const {
     size_t n = currPoints.size();
-    vector<vector<vec3>> values(n, std::vector<vec3>(n));
+    vector<PointList> values(n, PointList(n));
 
     for (int x = 0; x < n; ++x) {
         for (int y = x; y < n; ++y) {
@@ -153,8 +157,8 @@ pair<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &cu
         }
     }
 
-    vector<vec3> p1;
-    vector<vec3> p2;
+    PointList p1;
+    PointList p2;
 
     for (int i = 0; i < n; ++i) {
         p1.push_back(values[i][i]);
@@ -164,7 +168,7 @@ pair<vector<vec3>, vector<vec3>> BezierCurve::deCasteljau(const vector<vec3> &cu
     return {p1, p2};
 }
 
-void BezierCurve::plotBezier(const vector<vec3> &currPoints) {
+void BezierCurve::plotBezier(const PointList &currPoints) {
     if (isFlat(currPoints)) {
         curvePoints.insert(curvePoints.end(), currPoints.begin(), currPoints.end());
     } else {

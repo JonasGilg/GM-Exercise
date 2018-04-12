@@ -11,8 +11,11 @@
 #include <GL/gl.h>
 #include <glm/vec3.hpp>
 
+
+using PointList = std::vector<glm::vec3>;
+
 struct BezierCurve {
-    BezierCurve(const std::vector<glm::vec3> &controlPoints,
+    BezierCurve(const PointList &controlPoints,
                 glm::vec3 pointColor,
                 glm::vec3 meshColor,
                 glm::vec3 curveColor);
@@ -22,7 +25,7 @@ struct BezierCurve {
     void draw() const;
     void drawPoints(GLenum mode) const;
 
-    std::vector<glm::vec3> intersects(const BezierCurve &other) const;
+    PointList intersects(const BezierCurve &other) const;
 
     virtual ~BezierCurve() = default;
 
@@ -32,17 +35,17 @@ struct BezierCurve {
 private:
     void update();
 
-    void plotBezier(const std::vector<glm::vec3> &currPoints);
-    std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> deCasteljau(const std::vector<glm::vec3> &currPoints) const;
+    void plotBezier(const PointList &currPoints);
+    std::pair<PointList, PointList> deCasteljau(const PointList &currPoints) const;
 
-    std::vector<glm::vec3> intersectsRecursive(const std::vector<glm::vec3> &curve1, const std::vector<glm::vec3> &curve2) const;
-    std::vector<glm::vec3> recurse(const std::vector<glm::vec3> &curve1, const std::vector<glm::vec3> &curve2) const;
+    PointList intersectsRecursive(const PointList &curve1, const PointList &curve2) const;
+    PointList recurse(const PointList &curve1, const PointList &curve2) const;
 
     void drawMesh() const;
     void drawCurve() const;
 
-    std::vector<glm::vec3> controlPoints;
-    std::vector<glm::vec3> curvePoints;
+    PointList controlPoints;
+    PointList curvePoints;
 
     const glm::vec3 pointColor;
     const glm::vec3 meshColor;
