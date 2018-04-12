@@ -38,8 +38,8 @@ private:
     void plotBezier(const PointList &currPoints);
     std::pair<PointList, PointList> deCasteljau(const PointList &currPoints) const;
 
-    PointList intersectsRecursive(const PointList &curve1, const PointList &curve2) const;
-    PointList recurse(const PointList &curve1, const PointList &curve2) const;
+    void intersectsRecursive(const PointList &curve1, const PointList &curve2, PointList &resultList) const;
+    void recurse(const PointList &curve1, const PointList &curve2, PointList &resultList) const;
 
     void drawMesh() const;
     void drawCurve() const;

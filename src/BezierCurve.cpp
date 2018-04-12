@@ -69,39 +69,36 @@ bool isFlat(const PointList &mesh) {
     return true;
 }
 
-PointList BezierCurve::recurse(const PointList &curve1, const PointList &curve2) const {
+void BezierCurve::recurse(const PointList &curve1, const PointList &curve2, PointList &resultList) const {
     PointList curve1A(curve1.begin(), curve1.begin() + curve1.size() / 2 + 1);
     PointList curve1B(curve1.begin() + curve1.size() / 2, curve1.end());
 
-    auto intersections1 = intersectsRecursive(curve1A, curve2);
-    auto intersections2 = intersectsRecursive(curve1B, curve2);
-    intersections1.insert(intersections1.end(), intersections2.begin(), intersections2.end());
-    return intersections1;
+    intersectsRecursive(curve1A, curve2, resultList);
+    intersectsRecursive(curve1B, curve2, resultList);
 }
 
-PointList BezierCurve::intersectsRecursive(const PointList &curve1, const PointList &curve2) const {
+void
+BezierCurve::intersectsRecursive(const PointList &curve1, const PointList &curve2, PointList &resultList) const {
     auto curve1BB = AABB::createFromMesh(curve1);
     auto curve2BB = AABB::createFromMesh(curve2);
 
     if (curve1BB.intersects(curve2BB)) {
         if (!isFlat(curve1)) {
-            return recurse(curve1, curve2);
+            recurse(curve1, curve2, resultList);
         } else if (!isFlat(curve2)) {
-            return recurse(curve2, curve1);
+            recurse(curve2, curve1, resultList);
         } else {
             auto result = lineIntersection({curve1.front(), curve1.back()}, {curve2.front(), curve2.back()});
-            PointList resultVector;
-
             if (result)
-                resultVector.push_back(*result);
-
-            return resultVector;
+                resultList.push_back(*result);
         }
-    } else return {};
+    }
 }
 
 PointList BezierCurve::intersects(const BezierCurve &other) const {
-    return intersectsRecursive(this->curvePoints, other.curvePoints);
+    PointList resultList;
+    intersectsRecursive(this->curvePoints, other.curvePoints, resultList);
+    return resultList;
 }
 
 void BezierCurve::draw() const {
