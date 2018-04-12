@@ -35,7 +35,8 @@ private:
     void plotBezier(const std::vector<glm::vec3> &currPoints);
     std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> deCasteljau(const std::vector<glm::vec3> &currPoints) const;
 
-    std::vector<glm::vec3> intersectsRecursive(const std::vector<glm::vec3> &v1, const std::vector<glm::vec3> &v2) const;
+    std::vector<glm::vec3> intersectsRecursive(const std::vector<glm::vec3> &curve1, const std::vector<glm::vec3> &curve2) const;
+    std::vector<glm::vec3> recurse(const std::vector<glm::vec3> &curve1, const std::vector<glm::vec3> &curve2) const;
 
     void drawMesh() const;
     void drawCurve() const;
@@ -48,4 +49,5 @@ private:
     const glm::vec3 curveColor;
 
     static unsigned long offsetCounter;
+
 };

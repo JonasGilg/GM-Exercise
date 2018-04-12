@@ -67,25 +67,25 @@ bool isFlat(const vector<vec3> &mesh) {
     return true;
 }
 
-vector<vec3> BezierCurve::intersectsRecursive(const vector<vec3> &v1, const vector<vec3> &v2) const {
-    auto v1BB = AABB::createFromMesh(v1);
-    auto v2BB = AABB::createFromMesh(v2);
+vector<vec3> BezierCurve::recurse(const vector<vec3> &curve1, const vector<vec3> &curve2) const {
+    auto result = deCasteljau(curve1);
+    auto intersections1 = intersectsRecursive(result.first, curve2);
+    auto intersections2 = intersectsRecursive(result.second, curve2);
+    intersections1.insert(intersections1.end(), intersections2.begin(), intersections2.end());
+    return intersections1;
+}
 
-    if (v1BB.intersects(v2BB)) {
-        if (!isFlat(v1)) {
-            auto result = deCasteljau(v1);
-            auto i1 = intersectsRecursive(result.first, v2);
-            auto i2 = intersectsRecursive(result.second, v2);
-            i1.insert(i1.end(), i2.begin(), i2.end());
-            return i1;
-        } else if (!isFlat(v2)) {
-            auto result = deCasteljau(v2);
-            auto i1 = intersectsRecursive(v1, result.first);
-            auto i2 = intersectsRecursive(v1, result.second);
-            i1.insert(i1.end(), i2.begin(), i2.end());
-            return i1;
+vector<vec3> BezierCurve::intersectsRecursive(const vector<vec3> &curve1, const vector<vec3> &curve2) const {
+    auto curve1BB = AABB::createFromMesh(curve1);
+    auto curve2BB = AABB::createFromMesh(curve2);
+
+    if (curve1BB.intersects(curve2BB)) {
+        if (!isFlat(curve1)) {
+            return recurse(curve1, curve2);
+        } else if (!isFlat(curve2)) {
+            return recurse(curve2, curve1);
         } else {
-            auto result = lineIntersection({v1.front(), v1.back()}, {v2.front(), v2.back()});
+            auto result = lineIntersection({curve1.front(), curve1.back()}, {curve2.front(), curve2.back()});
             vector<vec3> resultVector;
 
             if (result)
