@@ -152,7 +152,7 @@ void init() {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glShadeModel(GL_FLAT);
     glEnable(GL_POINT_SMOOTH);
-    glPointSize(10.0);
+    glPointSize(8.0);
 
     curves.emplace_back(vector<vec3>{
             {-4.0f,  2.0f, -15.0f},
@@ -191,6 +191,9 @@ void reshape(GLsizei w, GLsizei h) {
 
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
+        case VK_ESCAPE:
+            exit(0);
+            break;
         default:
             break;
     }

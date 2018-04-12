@@ -52,5 +52,4 @@ private:
     const glm::vec3 curveColor;
 
     static unsigned long offsetCounter;
-
 };

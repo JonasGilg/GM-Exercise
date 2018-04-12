@@ -1,5 +1,4 @@
 #include <glm/gtc/type_ptr.hpp>
-#include <experimental/optional>
 #include <iostream>
 
 #include "BezierCurve.h"
@@ -40,27 +39,6 @@ void BezierCurve::setPicked(int i, vec3 picked) {
     update();
 }
 
-float perp(vec3 u, vec3 v) {
-    return u.x * v.y - u.y * v.x;
-}
-
-optional<vec3> lineIntersection(const Line &a, const Line &b) {
-    vec3 u = a.direction;
-    vec3 v = b.direction;
-    vec3 w = a.start - b.start;
-    float d = perp(u, v);
-
-    float sI = perp(v, w) / d;
-    if (sI < 0 || sI > 1)
-        return {};
-
-    float tI = perp(u, w) / d;
-    if (tI < 0 || tI > 1)
-        return {};
-
-    return a.start + sI * u;
-}
-
 bool isFlat(const PointList &mesh) {
     for (int i = 1; i < mesh.size() - 1; ++i) {
         if (Line(mesh[i + 1] - mesh[i], mesh[i] - mesh[i - 1]).magnitude > EPSILON)
@@ -87,7 +65,7 @@ void BezierCurve::intersectsRecursive(const PointList &curve1, const PointList &
         } else if (!isFlat(curve2)) {
             recurse(curve2, curve1, resultList);
         } else {
-            auto result = lineIntersection({curve1.front(), curve1.back()}, {curve2.front(), curve2.back()});
+            auto result = Line{curve1.front(), curve1.back()}.intersect({curve2.front(), curve2.back()});
             if (result)
                 resultList.push_back(*result);
         }
