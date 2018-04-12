@@ -77,8 +77,7 @@ void BezierCurve::recurse(const PointList &curve1, const PointList &curve2, Poin
     intersectsRecursive(curve1B, curve2, resultList);
 }
 
-void
-BezierCurve::intersectsRecursive(const PointList &curve1, const PointList &curve2, PointList &resultList) const {
+void BezierCurve::intersectsRecursive(const PointList &curve1, const PointList &curve2, PointList &resultList) const {
     auto curve1BB = AABB::createFromMesh(curve1);
     auto curve2BB = AABB::createFromMesh(curve2);
 
