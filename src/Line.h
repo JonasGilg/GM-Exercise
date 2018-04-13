@@ -18,6 +18,9 @@ struct Line {
               magnitude(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z) {}
 
     optional<glm::vec3> intersect(const Line &other) {
+        if(this->start == other.start || this->start == other.end || this->end == other.start || this->end == other.end)
+            return {};
+
         glm::vec3 u = this->direction;
         glm::vec3 v = other.direction;
         glm::vec3 w = this->start - other.start;

@@ -11,19 +11,19 @@
 #include <glm/vec3.hpp>
 #include <vector>
 #include <glm/gtc/type_ptr.hpp>
-#include <memory>
-#include <iostream>
-#include <ctime>
-#include <glm/gtx/norm.hpp>
 
 #include "BezierCurve.h"
 #include "Util.h"
+#include "DrawUtil.h"
 
 using namespace std;
 using namespace glm;
 
 constexpr int ESCAPE_KEY = 27;
 constexpr int BUFFER_SIZE = 512;
+
+int windowWidth;
+int windowHeight;
 
 vector<BezierCurve> curves;
 vector<vec3> intersections;
@@ -40,6 +40,8 @@ void drawAll() {
     for (auto &&point : intersections)
         glVertex3fv(value_ptr(point));
     glEnd();
+
+    drawText("Made by Jonas Gilg", 10, 10, windowWidth, windowHeight);
 }
 
 void drawPoints() {
@@ -182,6 +184,9 @@ void init() {
 }
 
 void reshape(GLsizei w, GLsizei h) {
+    windowWidth = w;
+    windowHeight = h;
+
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

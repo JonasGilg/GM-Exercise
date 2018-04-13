@@ -1,6 +1,9 @@
 #include <glm/gtc/type_ptr.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
 #include <iostream>
+#include <GL/glut.h>
 
 #include "BezierCurve.h"
 #include "AxisAlignedBoundingBox.h"
@@ -88,7 +91,7 @@ void BezierCurve::draw() const {
 
     glColor3f(1, 0, 0);
     glBegin(GL_POINTS);
-    for (auto&& point : selfIntersections) {
+    for (auto &&point : selfIntersections) {
         glVertex3fv(value_ptr(point));
     }
     glEnd();
@@ -172,12 +175,14 @@ float angleBetweenVectors(const vec3 &v1, const vec3 &v2) {
 }
 
 bool canSelfIntersect(const PointList &points) {
-    float angle = 0.0;
-
     for (int i = 0; i < points.size() - 1; ++i) {
-        angle += angleBetweenVectors(points[i], points[i + 1]);
-        if(angle > M_PI || angle < -M_PI)
-            return true;
+
+        float angle = 0.0;
+        for (int j = i; j < points.size() - 1; ++j) {
+            angle += angleBetweenVectors(points[j], points[j + 1]);
+            if (angle > M_PI || angle < -M_PI)
+                return true;
+        }
     }
 
     return false;
@@ -195,17 +200,13 @@ PointList derive(const PointList &points) {
 }
 
 void BezierCurve::selfIntersectsRecursive(const PointList &currPoints) {
-    if(canSelfIntersect(derive(currPoints))) {
+    if (canSelfIntersect(derive(currPoints))) {
         auto result = deCasteljau(currPoints);
         selfIntersectsRecursive(result.first);
         selfIntersectsRecursive(result.second);
     } else {
         selfInteractionParts.push_back(currPoints);
     }
-}
-
-bool isSameVector(vec3 a, vec3 b) {
-    return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
 void BezierCurve::intersectsSelf() {
@@ -217,10 +218,6 @@ void BezierCurve::intersectsSelf() {
         for (int j = i + 1; j < selfInteractionParts.size(); ++j) {
             auto list1 = selfInteractionParts[i];
             auto list2 = selfInteractionParts[j];
-
-            if(isSameVector(*list1.end(), *list2.begin())) {
-                list1.pop_back();
-            }
 
             intersectsRecursive(list1, list2, selfIntersections);
         }
