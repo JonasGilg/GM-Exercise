@@ -21,6 +21,7 @@
 using namespace std;
 using namespace glm;
 
+constexpr int ESCAPE_KEY = 27;
 constexpr int BUFFER_SIZE = 512;
 
 vector<BezierCurve> curves;
@@ -191,7 +192,7 @@ void reshape(GLsizei w, GLsizei h) {
 
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
-        case VK_ESCAPE:
+        case ESCAPE_KEY:
             exit(0);
             break;
         default:

@@ -32,6 +32,8 @@ struct BezierCurve {
     const unsigned long offset;
     const unsigned long offsetEnd;
 
+    static float EPSILON;
+
 private:
     void update();
 
@@ -41,11 +43,17 @@ private:
     void intersectsRecursive(const PointList &curve1, const PointList &curve2, PointList &resultList) const;
     void recurse(const PointList &curve1, const PointList &curve2, PointList &resultList) const;
 
+    void intersectsSelf();
+    void intersectsRecursive();
+
+    bool isFlat(const PointList &mesh) const;
+
     void drawMesh() const;
     void drawCurve() const;
 
     PointList controlPoints;
     PointList curvePoints;
+    PointList selfIntersections;
 
     const glm::vec3 pointColor;
     const glm::vec3 meshColor;

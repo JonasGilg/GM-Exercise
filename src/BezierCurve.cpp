@@ -11,7 +11,7 @@ using namespace std;
 using namespace experimental;
 using namespace glm;
 
-constexpr float EPSILON = 0.001f;
+float BezierCurve::EPSILON = 0.001f;
 
 unsigned long BezierCurve::offsetCounter = 0;
 
@@ -32,6 +32,7 @@ BezierCurve::BezierCurve(const PointList &controlPoints,
 void BezierCurve::update() {
     curvePoints.clear();
     plotBezier(controlPoints);
+    intersectsSelf();
 }
 
 void BezierCurve::setPicked(int i, vec3 picked) {
@@ -39,7 +40,7 @@ void BezierCurve::setPicked(int i, vec3 picked) {
     update();
 }
 
-bool isFlat(const PointList &mesh) {
+bool BezierCurve::isFlat(const PointList &mesh) const {
     for (int i = 1; i < mesh.size() - 1; ++i) {
         if (Line(mesh[i + 1] - mesh[i], mesh[i] - mesh[i - 1]).magnitude > EPSILON)
             return false;
@@ -48,8 +49,9 @@ bool isFlat(const PointList &mesh) {
 }
 
 void BezierCurve::recurse(const PointList &curve1, const PointList &curve2, PointList &resultList) const {
-    PointList curve1A(curve1.begin(), curve1.begin() + curve1.size() / 2 + 1);
-    PointList curve1B(curve1.begin() + curve1.size() / 2, curve1.end());
+    auto result = deCasteljau(curve1);
+    PointList curve1A = result.first;
+    PointList curve1B = result.second;
 
     intersectsRecursive(curve1A, curve2, resultList);
     intersectsRecursive(curve1B, curve2, resultList);
@@ -74,7 +76,7 @@ void BezierCurve::intersectsRecursive(const PointList &curve1, const PointList &
 
 PointList BezierCurve::intersects(const BezierCurve &other) const {
     PointList resultList;
-    intersectsRecursive(this->curvePoints, other.curvePoints, resultList);
+    intersectsRecursive(this->controlPoints, other.controlPoints, resultList);
     return resultList;
 }
 
@@ -150,4 +152,11 @@ void BezierCurve::plotBezier(const PointList &currPoints) {
         plotBezier(c.first);
         plotBezier(c.second);
     }
+}
+
+
+
+void BezierCurve::intersectsSelf() {
+    selfIntersections.clear();
+
 }
