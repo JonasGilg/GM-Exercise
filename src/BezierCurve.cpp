@@ -1,4 +1,5 @@
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/norm.hpp>
 #include <iostream>
 
 #include "BezierCurve.h"
@@ -11,7 +12,7 @@ using namespace std;
 using namespace experimental;
 using namespace glm;
 
-float BezierCurve::EPSILON = 0.001f;
+constexpr float EPSILON = 0.001f;
 
 unsigned long BezierCurve::offsetCounter = 0;
 
@@ -84,6 +85,13 @@ void BezierCurve::draw() const {
     drawCurve();
     drawMesh();
     drawPoints(GL_RENDER);
+
+    glColor3f(1, 0, 0);
+    glBegin(GL_POINTS);
+    for (auto&& point : selfIntersections) {
+        glVertex3fv(value_ptr(point));
+    }
+    glEnd();
 }
 
 void BezierCurve::drawPoints(GLenum mode) const {
@@ -154,9 +162,67 @@ void BezierCurve::plotBezier(const PointList &currPoints) {
     }
 }
 
+float angleBetweenVectors(const vec3 &v1, const vec3 &v2) {
+    float angle = acos(dot(normalize(v1), normalize(v2)));
+    auto c = cross(v1, v2);
+    if (dot({0, 0, 1}, c) < 0) {
+        angle *= -1;
+    }
+    return angle;
+}
 
+bool canSelfIntersect(const PointList &points) {
+    float angle = 0.0;
+
+    for (int i = 0; i < points.size() - 1; ++i) {
+        angle += angleBetweenVectors(points[i], points[i + 1]);
+        if(angle > M_PI || angle < -M_PI)
+            return true;
+    }
+
+    return false;
+}
+
+PointList derive(const PointList &points) {
+    size_t n = points.size();
+    PointList derivative;
+
+    for (int i = 0; i < n - 1; ++i) {
+        derivative.push_back((float) n * (points[i + 1] - points[i]));
+    }
+
+    return derivative;
+}
+
+void BezierCurve::selfIntersectsRecursive(const PointList &currPoints) {
+    if(canSelfIntersect(derive(currPoints))) {
+        auto result = deCasteljau(currPoints);
+        selfIntersectsRecursive(result.first);
+        selfIntersectsRecursive(result.second);
+    } else {
+        selfInteractionParts.push_back(currPoints);
+    }
+}
+
+bool isSameVector(vec3 a, vec3 b) {
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
 
 void BezierCurve::intersectsSelf() {
     selfIntersections.clear();
+    selfInteractionParts.clear();
+    selfIntersectsRecursive(controlPoints);
 
+    for (int i = 0; i < selfInteractionParts.size(); ++i) {
+        for (int j = i + 1; j < selfInteractionParts.size(); ++j) {
+            auto list1 = selfInteractionParts[i];
+            auto list2 = selfInteractionParts[j];
+
+            if(isSameVector(*list1.end(), *list2.begin())) {
+                list1.pop_back();
+            }
+
+            intersectsRecursive(list1, list2, selfIntersections);
+        }
+    }
 }

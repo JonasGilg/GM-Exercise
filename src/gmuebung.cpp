@@ -14,6 +14,7 @@
 #include <memory>
 #include <iostream>
 #include <ctime>
+#include <glm/gtx/norm.hpp>
 
 #include "BezierCurve.h"
 #include "Util.h"
