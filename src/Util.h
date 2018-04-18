@@ -4,7 +4,7 @@
 #include <ctime>
 #include <chrono>
 
-using Clock = std::chrono::high_resolution_clock;
+using Clock = std::chrono::steady_clock;
 
 long measureClocks(const std::function<void()> &function) {
     auto start = std::clock();

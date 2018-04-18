@@ -6,15 +6,15 @@
 
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <GL/glut.h>
 #include <cmath>
 #include <glm/vec3.hpp>
 #include <vector>
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+#include <SDL2/SDL.h>
 
 #include "BezierCurve.h"
 #include "Util.h"
-#include "DrawUtil.h"
 
 using namespace std;
 using namespace glm;
@@ -40,8 +40,6 @@ void drawAll() {
     for (auto &&point : intersections)
         glVertex3fv(value_ptr(point));
     glEnd();
-
-    drawText("Made by Jonas Gilg", 10, 10, windowWidth, windowHeight);
 }
 
 void drawPoints() {
@@ -95,13 +93,13 @@ int pickPoints(int x, int y) {
 }
 
 void mousePress(int button, int state, int x, int y) {
-    if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_DOWN))
+    /*if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_DOWN))
         picked_pos = pickPoints(x, y);
 
     if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_UP))
         picked_pos = -1;
 
-    glutPostRedisplay();
+    glutPostRedisplay();*/
 }
 
 void mouseMove(int x, int y) {
@@ -139,7 +137,7 @@ void mouseMove(int x, int y) {
         }
     }
 
-    glutPostRedisplay();
+    //glutPostRedisplay();
 }
 
 void display() {
@@ -149,7 +147,7 @@ void display() {
 
     drawAll();
 
-    glutSwapBuffers();
+    //glutSwapBuffers();
 }
 
 void init() {
@@ -207,28 +205,30 @@ void keyboard(unsigned char key, int x, int y) {
 }
 
 int main(int argc, char **argv) {
-    glutInit(&argc, argv);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    /*glutInit(&argc, argv);
 
-    constexpr int WINDOW_WIDTH = 1200;
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);*/
+
+    /*constexpr int WINDOW_WIDTH = 1200;
     constexpr int WINDOW_HEIGHT = 720;
     const int windowX = (glutGet(GLUT_SCREEN_WIDTH) - WINDOW_WIDTH) / 2;
-    const int windowY = (glutGet(GLUT_SCREEN_HEIGHT) - WINDOW_HEIGHT) / 2;
+    const int windowY = (glutGet(GLUT_SCREEN_HEIGHT) - WINDOW_HEIGHT) / 2;*/
 
-    glutInitWindowPosition(windowX, windowY);
+    /*glutInitWindowPosition(windowX, windowY);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    glutCreateWindow("GM Uebung SoSe 2018");
+    glutCreateWindow("GM Uebung SoSe 2018");*/
 
     init();
 
-    glutMouseFunc(mousePress);
+    /*glutMouseFunc(mousePress);
     glutMotionFunc(mouseMove);
     glutKeyboardFunc(keyboard);
     glutReshapeFunc(reshape);
     glutDisplayFunc(display);
 
-    glutMainLoop();
+    glutMainLoop();*/
 
     return 0;
 }

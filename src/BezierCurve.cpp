@@ -3,7 +3,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
 #include <iostream>
-#include <GL/glut.h>
 
 #include "BezierCurve.h"
 #include "AxisAlignedBoundingBox.h"

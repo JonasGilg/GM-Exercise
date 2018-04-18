@@ -21,31 +21,19 @@ if (WIN32)
 
     # Get Path to C++ library directory and store it in "C++LIBS" variable
     file(TO_CMAKE_PATH $ENV{CPP_LIBS} C++LIBS)
+    set(SDL_PATH "SDL2/SDL2-2.0.8/i686-w64-mingw32")
 
     # Check toolchain, 32/64bit and set variables accordingly
     if (MINGW)
         message(STATUS "Toolchain: MinGW")
 
         if (64BIT)
-            # GLUT 64
-            set(GLUT_glut_LIBRARY "${C++LIBS}/mingw/freeglut/freeglut-3.0.0/lib/x64/libfreeglut.a")
-            set(GLUT_INCLUDE_DIR "${C++LIBS}/mingw/freeglut/freeglut-3.0.0/include")
-        else ()
-            # GLUT 32
-            set(GLUT_glut_LIBRARY "${C++LIBS}/mingw/freeglut/freeglut-3.0.0/lib/libfreeglut.a")
-            set(GLUT_INCLUDE_DIR "${C++LIBS}/mingw/freeglut/freeglut-3.0.0/include")
-        endif ()
-    elseif (MSVC)
-        message(STATUS "Toolchain: MSVC")
-
-        if (64BIT)
-            # GLUT 64
-            set(GLUT_glut_LIBRARY "{C++LIBS}/msvc/freeglut/freeglut-3.0.0/lib/x64/libfreeglut.lib")
-            set(GLUT_INCLUDE_DIR "${C++LIBS}/msvc/freeglut/freeglut-3.0.0/include")
-        else ()
-            # GLUT 32
-            set(GLUT_glut_LIBRARY "{C++LIBS}/msvc/freeglut/freeglut-3.0.0/lib/libfreeglut.lib")
-            set(GLUT_INCLUDE_DIR "${C++LIBS}/msvc/freeglut/freeglut-3.0.0/include")
+            # SDL
+            set(SDL_LIBRARY "${C++LIBS}/mingw/${SDL_PATH}/lib")
+            set(SDL_INCLUDE_DIR "${C++LIBS}/mingw/${SDL_PATH}/include")
+        else()
+            set(SDL_LIBRARY "${C++LIBS}/mingw/${SDL_PATH}/lib")
+            set(SDL_INCLUDE_DIR "${C++LIBS}/mingw/${SDL_PATH}/include")
         endif ()
     endif ()
 
@@ -70,14 +58,12 @@ message(STATUS "OPENGL_INCLUDE_DIRS: ${OPENGL_INCLUDE_DIRS}")
 
 ### END OPENGL #########################################################################################################
 ########################################################################################################################
-### FIND GLUT ##########################################################################################################
+### FIND SDL ##########################################################################################################
 
-find_package(GLUT REQUIRED)
 
 message("")
-message(STATUS "GLUT_FOUND: ${GLUT_FOUND}")
-message(STATUS "GLUT_glut_LIBRARY: ${GLUT_glut_LIBRARY}")
-message(STATUS "GLUT_INCLUDE_DIR: ${GLUT_INCLUDE_DIR}")
+message(STATUS "SDL_LIBRARY: ${SDL_LIBRARY}")
+message(STATUS "SDL_INCLUDE_DIR: ${SDL_INCLUDE_DIR}")
 
 ### END GLUT ###########################################################################################################
 ########################################################################################################################
@@ -91,9 +77,9 @@ message("")
 ########################################################################################################################
 ### LINK AND BUILD #####################################################################################################
 
-include_directories(${OPENGL_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${GLUT_INCLUDE_DIR})
-add_executable(gm_exercise src/gmuebung.cpp src/BezierCurve.cpp src/BezierCurve.h src/AxisAlignedBoundingBox.cpp src/AxisAlignedBoundingBox.h src/Line.h src/Util.h src/DrawUtil.h)
-target_link_libraries(gm_exercise ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
+include_directories(${OPENGL_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${SDL_INCLUDE_DIR})
+add_executable(gm_exercise src/gmuebung.cpp src/BezierCurve.cpp src/BezierCurve.h src/AxisAlignedBoundingBox.cpp src/AxisAlignedBoundingBox.h src/Line.h src/Util.h src/DrawUtil.h src/Window.cpp src/Window.h)
+target_link_libraries(gm_exercise ${OPENGL_LIBRARIES} ${SDL_LIBRARY})
 
 ### END LINK AND BUILD #################################################################################################
 ########################################################################################################################

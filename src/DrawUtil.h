@@ -2,8 +2,6 @@
 
 #include <string>
 #include <GL/gl.h>
-#include <GL/glut.h>
-
 void drawText(std::string text, int xFromLeft, int yFromTop, int windowWidth, int windowHeight) {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
