@@ -12,18 +12,18 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <SDL2/SDL.h>
+#include <memory>
 
 #include "BezierCurve.h"
 #include "Util.h"
+#include "Window.h"
 
 using namespace std;
 using namespace glm;
 
-constexpr int ESCAPE_KEY = 27;
 constexpr int BUFFER_SIZE = 512;
 
-int windowWidth;
-int windowHeight;
+std::unique_ptr<Window> window;
 
 vector<BezierCurve> curves;
 vector<vec3> intersections;
@@ -35,7 +35,6 @@ void drawAll() {
         curve.draw();
     }
 
-    glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_POINTS);
     for (auto &&point : intersections)
         glVertex3fv(value_ptr(point));
@@ -92,17 +91,17 @@ int pickPoints(int x, int y) {
     return processHits(hits, selectBuf);
 }
 
-void mousePress(int button, int state, int x, int y) {
-    /*if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_DOWN))
+void mousePress(Uint8 button, Sint32 x, Sint32 y) {
+    if (button == SDL_BUTTON_LEFT)
         picked_pos = pickPoints(x, y);
-
-    if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_UP))
-        picked_pos = -1;
-
-    glutPostRedisplay();*/
 }
 
-void mouseMove(int x, int y) {
+void mouseUp(Uint8 button, Sint32 x, Sint32 y) {
+    if (button == SDL_BUTTON_LEFT)
+        picked_pos = -1;
+}
+
+void mouseMove(Sint32 x, Sint32 y) {
     array<GLint, 4> viewport{};
     glGetIntegerv(GL_VIEWPORT, viewport.data());
 
@@ -136,8 +135,6 @@ void mouseMove(int x, int y) {
             }
         }
     }
-
-    //glutPostRedisplay();
 }
 
 void display() {
@@ -146,8 +143,16 @@ void display() {
     glColor3f(1.0f, 1.0f, 1.0f);
 
     drawAll();
+}
 
-    //glutSwapBuffers();
+void reshape(Sint32 w, Sint32 h) {
+    glViewport(0, 0, static_cast<GLsizei>(w), static_cast<GLsizei>(h));
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(60.0, static_cast<double>(w) / static_cast<double>(h), 1.0, 20.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslatef(0.0f, 0.0f, -5.0f);
 }
 
 void init() {
@@ -155,6 +160,8 @@ void init() {
     glShadeModel(GL_FLAT);
     glEnable(GL_POINT_SMOOTH);
     glPointSize(8.0);
+
+    reshape(1200, 720);
 
     curves.emplace_back(vector<vec3>{
             {-4.0f,  2.0f, -15.0f},
@@ -181,54 +188,34 @@ void init() {
     }, vec3(0.2f, 0.2f, 0.2f), vec3(1.0f, 1.0f, 1.0f), vec3(0.6f, 0.6f, 0.6f));
 }
 
-void reshape(GLsizei w, GLsizei h) {
-    windowWidth = w;
-    windowHeight = h;
-
-    glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(60.0, static_cast<double>(w) / static_cast<double>(h), 1.0, 20.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glTranslatef(0.0f, 0.0f, -5.0f);
-}
-
-void keyboard(unsigned char key, int x, int y) {
+void keyboard(SDL_Keycode key) {
     switch (key) {
-        case ESCAPE_KEY:
-            exit(0);
+        case SDLK_ESCAPE:
+            window->close();
             break;
         default:
             break;
     }
 }
 
+#undef main
+
 int main(int argc, char **argv) {
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+    SDL_Init(SDL_INIT_VIDEO);
 
-    /*glutInit(&argc, argv);
-
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);*/
-
-    /*constexpr int WINDOW_WIDTH = 1200;
-    constexpr int WINDOW_HEIGHT = 720;
-    const int windowX = (glutGet(GLUT_SCREEN_WIDTH) - WINDOW_WIDTH) / 2;
-    const int windowY = (glutGet(GLUT_SCREEN_HEIGHT) - WINDOW_HEIGHT) / 2;*/
-
-    /*glutInitWindowPosition(windowX, windowY);
-    glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    glutCreateWindow("GM Uebung SoSe 2018");*/
+    window = std::make_unique<Window>("GM Uebung SoSe 2018", 1200, 720);
 
     init();
 
-    /*glutMouseFunc(mousePress);
-    glutMotionFunc(mouseMove);
-    glutKeyboardFunc(keyboard);
-    glutReshapeFunc(reshape);
-    glutDisplayFunc(display);
+    window->setOnDisplay(display);
+    window->setOnResize(reshape);
+    window->setOnKeyDown(keyboard);
+    window->setOnMouseButtonDown(mousePress);
+    window->setOnMouseButtonUp(mouseUp);
+    window->setOnMouseMove(mouseMove);
 
-    glutMainLoop();*/
+    window->run();
 
+    SDL_Quit();
     return 0;
 }

@@ -32,7 +32,7 @@ if (WIN32)
             set(SDL_LIBRARY "${C++LIBS}/mingw/${SDL_PATH}/lib")
             set(SDL_INCLUDE_DIR "${C++LIBS}/mingw/${SDL_PATH}/include")
         else()
-            set(SDL_LIBRARY "${C++LIBS}/mingw/${SDL_PATH}/lib")
+            set(SDL_LIBRARY "${C++LIBS}/mingw/${SDL_PATH}/lib/libSDL2.dll.a")
             set(SDL_INCLUDE_DIR "${C++LIBS}/mingw/${SDL_PATH}/include")
         endif ()
     endif ()
@@ -60,9 +60,9 @@ message(STATUS "OPENGL_INCLUDE_DIRS: ${OPENGL_INCLUDE_DIRS}")
 ########################################################################################################################
 ### FIND SDL ##########################################################################################################
 
-
 message("")
 message(STATUS "SDL_LIBRARY: ${SDL_LIBRARY}")
+message(STATUS "SDL_LIBRARY_MAIN: ${SDL_LIBRARY_MAIN}")
 message(STATUS "SDL_INCLUDE_DIR: ${SDL_INCLUDE_DIR}")
 
 ### END GLUT ###########################################################################################################
