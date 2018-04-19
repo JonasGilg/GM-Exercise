@@ -21,17 +21,18 @@ if (WIN32)
 
     # Get Path to C++ library directory and store it in "C++LIBS" variable
     file(TO_CMAKE_PATH $ENV{CPP_LIBS} C++LIBS)
-    set(SDL_PATH "SDL2/SDL2-2.0.8/i686-w64-mingw32")
 
     # Check toolchain, 32/64bit and set variables accordingly
     if (MINGW)
         message(STATUS "Toolchain: MinGW")
-
         if (64BIT)
-            # SDL
+            # SDL 64
+            set(SDL_PATH "SDL2/SDL2-2.0.8/x86_64-w64-mingw32")
             set(SDL_LIBRARY "${C++LIBS}/mingw/${SDL_PATH}/lib")
             set(SDL_INCLUDE_DIR "${C++LIBS}/mingw/${SDL_PATH}/include")
         else()
+            # SDL 32
+            set(SDL_PATH "SDL2/SDL2-2.0.8/i686-w64-mingw32")
             set(SDL_LIBRARY "${C++LIBS}/mingw/${SDL_PATH}/lib/libSDL2.dll.a")
             set(SDL_INCLUDE_DIR "${C++LIBS}/mingw/${SDL_PATH}/include")
         endif ()
@@ -58,14 +59,14 @@ message(STATUS "OPENGL_INCLUDE_DIRS: ${OPENGL_INCLUDE_DIRS}")
 
 ### END OPENGL #########################################################################################################
 ########################################################################################################################
-### FIND SDL ##########################################################################################################
+### FIND SDL2 ##########################################################################################################
 
 message("")
 message(STATUS "SDL_LIBRARY: ${SDL_LIBRARY}")
 message(STATUS "SDL_LIBRARY_MAIN: ${SDL_LIBRARY_MAIN}")
 message(STATUS "SDL_INCLUDE_DIR: ${SDL_INCLUDE_DIR}")
 
-### END GLUT ###########################################################################################################
+### END SDL2 ###########################################################################################################
 ########################################################################################################################
 ### CHECK GLM ##########################################################################################################
 
