@@ -1,5 +1,6 @@
 #include "Window.h"
-#include <utility>
+
+#include <SDL2/SDL_events.h>
 
 Window::Window(const std::string &name, int width, int height) : running(false) {
     windowHandle = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
@@ -46,8 +47,15 @@ void Window::loop() {
     while (running) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
-                case SDL_WINDOWEVENT_RESIZED:
-                    resizeFunction(event.window.data1, event.window.data2);
+                case SDL_WINDOWEVENT:
+                    switch (event.window.event) {
+                        case SDL_WINDOWEVENT_RESIZED:
+                            resizeFunction(event.window.data1, event.window.data2);
+                            break;
+
+                        default:
+                            break;
+                    }
                     break;
 
                 case SDL_KEYDOWN:

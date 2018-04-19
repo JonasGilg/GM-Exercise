@@ -3,7 +3,7 @@
 #include <string>
 #include <functional>
 #include <SDL2/SDL_video.h>
-#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keycode.h>
 
 class Window {
     SDL_Window *windowHandle;
