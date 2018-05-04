@@ -3,7 +3,7 @@
 #include <vector>
 #include <glm/vec3.hpp>
 
-struct AxisAlignedBoundingBox {
+struct AxisAlignedBoundingBox final {
     const glm::vec3 min;
     const glm::vec3 max;
 

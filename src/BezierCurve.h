@@ -14,7 +14,7 @@
 
 using PointList = std::vector<glm::vec3>;
 
-struct BezierCurve {
+struct BezierCurve final {
     BezierCurve(const PointList &controlPoints,
                 glm::vec3 pointColor,
                 glm::vec3 meshColor,
@@ -27,7 +27,7 @@ struct BezierCurve {
 
     PointList intersects(const BezierCurve &other) const;
 
-    virtual ~BezierCurve() = default;
+    ~BezierCurve() = default;
 
     const unsigned long offset;
     const unsigned long offsetEnd;
@@ -52,7 +52,7 @@ private:
     PointList controlPoints;
     PointList curvePoints;
     PointList selfIntersections;
-    std::vector<PointList> selfInteractionParts;
+    std::vector<PointList> selfIntersectionParts;
 
     const glm::vec3 pointColor;
     const glm::vec3 meshColor;

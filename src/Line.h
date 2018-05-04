@@ -5,7 +5,7 @@
 
 using namespace std::experimental;
 
-struct Line {
+struct Line final {
     const glm::vec3 start{};
     const glm::vec3 end{};
     const glm::vec3 direction{};
@@ -24,6 +24,7 @@ struct Line {
         glm::vec3 u = this->direction;
         glm::vec3 v = other.direction;
         glm::vec3 w = this->start - other.start;
+
         float d = perp(u, v);
 
         float sI = perp(v, w) / d;
@@ -37,7 +38,7 @@ struct Line {
         return this->start + sI * u;
     }
 
-    virtual ~Line() = default;
+    ~Line() = default;
 
 private:
     float perp(glm::vec3 u, glm::vec3 v) {

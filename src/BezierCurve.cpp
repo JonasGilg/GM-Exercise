@@ -205,19 +205,19 @@ void BezierCurve::selfIntersectsRecursive(const PointList &currPoints) {
         selfIntersectsRecursive(result.first);
         selfIntersectsRecursive(result.second);
     } else {
-        selfInteractionParts.push_back(currPoints);
+        selfIntersectionParts.push_back(currPoints);
     }
 }
 
 void BezierCurve::intersectsSelf() {
     selfIntersections.clear();
-    selfInteractionParts.clear();
+    selfIntersectionParts.clear();
     selfIntersectsRecursive(controlPoints);
 
-    for (int i = 0; i < selfInteractionParts.size(); ++i) {
-        for (int j = i + 1; j < selfInteractionParts.size(); ++j) {
-            auto list1 = selfInteractionParts[i];
-            auto list2 = selfInteractionParts[j];
+    for (int i = 0; i < selfIntersectionParts.size(); ++i) {
+        for (int j = i + 1; j < selfIntersectionParts.size(); ++j) {
+            auto list1 = selfIntersectionParts[i];
+            auto list2 = selfIntersectionParts[j];
 
             intersectsRecursive(list1, list2, selfIntersections);
         }
