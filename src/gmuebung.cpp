@@ -124,23 +124,21 @@ void mouseMove(int x, int y) {
     glReadPixels(new_pos_x, new_pos_y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
     gluUnProject(new_pos_x, new_pos_y, z, cmvm.data(), cpm.data(), viewport.data(), &objx, &objy, &objz);
 
-    printf("%lli\n", measureTimeNanos([&] {
-        if (picked_pos >= 0) {
-            for (auto &&curve : curves) {
-                if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
-                    curve.setPicked(picked_pos, {objx, objy, round(objz)});
-                }
-            }
-
-            intersections.clear();
-            for (int i = 0; i < curves.size(); ++i) {
-                for (int j = i + 1; j < curves.size(); ++j) {
-                    auto intersects = curves[i].intersects(curves[j]);
-                    intersections.insert(intersections.end(), intersects.begin(), intersects.end());
-                }
+    if (picked_pos >= 0) {
+        for (auto &&curve : curves) {
+            if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
+                curve.setPicked(picked_pos, {objx, objy, round(objz)});
             }
         }
-    }));
+
+        intersections.clear();
+        for (int i = 0; i < curves.size(); ++i) {
+            for (int j = i + 1; j < curves.size(); ++j) {
+                auto intersects = curves[i].intersects(curves[j]);
+                intersections.insert(intersections.end(), intersects.begin(), intersects.end());
+            }
+        }
+    }
 
     glutPostRedisplay();
 }
