@@ -40,18 +40,18 @@ if (WIN32)
 
         if (64BIT)
             # GLUT 64
-            set(GLUT_glut_LIBRARY "{C++LIBS}/msvc/freeglut/freeglut-3.0.0/lib/x64/libfreeglut.lib")
+            set(GLUT_glut_LIBRARY "${C++LIBS}/msvc/freeglut/freeglut-3.0.0/lib/x64/freeglut.lib")
             set(GLUT_INCLUDE_DIR "${C++LIBS}/msvc/freeglut/freeglut-3.0.0/include")
         else ()
             # GLUT 32
-            set(GLUT_glut_LIBRARY "{C++LIBS}/msvc/freeglut/freeglut-3.0.0/lib/libfreeglut.lib")
+            set(GLUT_glut_LIBRARY "${C++LIBS}/msvc/freeglut/freeglut-3.0.0/lib/freeglut.lib")
             set(GLUT_INCLUDE_DIR "${C++LIBS}/msvc/freeglut/freeglut-3.0.0/include")
         endif ()
     endif ()
 
     # Set path for GLM
     set(GLM_INCLUDE_DIR "${C++LIBS}/all/glm/glm-0.9.9.0")
-else()
+else ()
     message(STATUS "Platform: Linux")
 endif ()
 
@@ -92,7 +92,16 @@ message("")
 ### LINK AND BUILD #####################################################################################################
 
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${GLUT_INCLUDE_DIR})
-add_executable(gm_exercise src/gmuebung.cpp src/BezierCurve.cpp src/BezierCurve.h src/AxisAlignedBoundingBox.cpp src/AxisAlignedBoundingBox.h src/Line.h src/Util.h src/DrawUtil.h src/BSplineCurve.cpp src/BSplineCurve.h)
+
+add_executable(gm_exercise
+        src/gmuebung.cpp
+        src/BezierCurve.cpp src/BezierCurve.h
+        src/AxisAlignedBoundingBox.cpp src/AxisAlignedBoundingBox.h
+        src/Line.h
+        src/Util.h
+        src/DrawUtil.h
+        src/BSplineCurve.cpp src/BSplineCurve.h)
+
 target_link_libraries(gm_exercise ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
 
 ### END LINK AND BUILD #################################################################################################

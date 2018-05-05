@@ -8,18 +8,18 @@ using namespace std;
 using namespace glm;
 
 BSplineCurve::BSplineCurve(const PointList &controlPoints,
-                           glm::vec3 pointColor,
-                           glm::vec3 meshColor,
-                           glm::vec3 curveColor)
+                           const glm::vec3 &pointColor,
+                           const glm::vec3 &meshColor,
+                           const glm::vec3 &curveColor)
         : controlPoints(controlPoints),
           pointColor(pointColor),
           meshColor(meshColor),
           curveColor(curveColor),
           offset(offsetCounter),
-          offsetEnd(offsetCounter + controlPoints.size()) {
+          offsetEnd(static_cast<const unsigned long>(offsetCounter + controlPoints.size())) {
 }
 
-void BSplineCurve::setPicked(int i, vec3 picked) {
+void BSplineCurve::setPicked(int i, const vec3 &picked) {
     controlPoints[i - offset] = picked;
     update();
 }

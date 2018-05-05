@@ -1,9 +1,19 @@
 #pragma once
 
-#include <glm/vec3.hpp>
-#include <experimental/optional>
+#ifdef _WIN32
+    #include <windows.h>
+#endif //_WIN32
 
-using namespace std::experimental;
+#include <glm/vec3.hpp>
+
+#ifdef _WIN32
+    #include <optional>
+#else
+    #include <experimental/optional>
+    using namespace std::experimental;
+#endif
+
+using namespace std;
 
 struct Line final {
     const glm::vec3 start{};
@@ -17,8 +27,9 @@ struct Line final {
               direction(end - start),
               magnitude(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z) {}
 
-    optional<glm::vec3> intersect(const Line &other) {
-        if(this->start == other.start || this->start == other.end || this->end == other.start || this->end == other.end)
+    optional <glm::vec3> intersect(const Line &other) {
+        if (this->start == other.start || this->start == other.end || this->end == other.start ||
+            this->end == other.end)
             return {};
 
         glm::vec3 u = this->direction;
@@ -41,7 +52,7 @@ struct Line final {
     ~Line() = default;
 
 private:
-    float perp(glm::vec3 u, glm::vec3 v) {
+    inline float perp(const glm::vec3 &u, const glm::vec3 &v) {
         return u.x * v.y - u.y * v.x;
     }
 };

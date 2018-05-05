@@ -4,15 +4,27 @@
 #include <glm/gtx/norm.hpp>
 #include <iostream>
 #include <GL/glut.h>
+#include <algorithm>
+
+#include <cmath>
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 #include "BezierCurve.h"
 #include "AxisAlignedBoundingBox.h"
 #include "Line.h"
 
+#if _WIN32
+    #include <optional>
+#else
+    #include <experimental/optional>
+    using namespace std::experimental;
+#endif
+
 using PointList = std::vector<glm::vec3>;
 
 using namespace std;
-using namespace experimental;
 using namespace glm;
 
 constexpr float EPSILON = 0.001f;
@@ -20,15 +32,15 @@ constexpr float EPSILON = 0.001f;
 unsigned long BezierCurve::offsetCounter = 0;
 
 BezierCurve::BezierCurve(const PointList &controlPoints,
-                         vec3 pointColor,
-                         vec3 meshColor,
-                         vec3 curveColor)
+                         const vec3 &pointColor,
+                         const vec3 &meshColor,
+                         const vec3 &curveColor)
         : controlPoints(controlPoints),
           pointColor(pointColor),
           meshColor(meshColor),
           curveColor(curveColor),
           offset(offsetCounter),
-          offsetEnd(offsetCounter + controlPoints.size()) {
+          offsetEnd(static_cast<const unsigned long>(offsetCounter + controlPoints.size())) {
     update();
     offsetCounter = offsetEnd;
 }
@@ -39,7 +51,7 @@ void BezierCurve::update() {
     intersectsSelf();
 }
 
-void BezierCurve::setPicked(int i, vec3 picked) {
+void BezierCurve::setPicked(int i, const vec3 &picked) {
     controlPoints[i - offset] = picked;
     update();
 }

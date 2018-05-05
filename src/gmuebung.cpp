@@ -11,6 +11,7 @@
 #include <glm/vec3.hpp>
 #include <vector>
 #include <glm/gtc/type_ptr.hpp>
+#include <array>
 
 #include "BezierCurve.h"
 #include "Util.h"
@@ -51,10 +52,10 @@ void drawPoints() {
     glPopName();
 }
 
-int processHits(GLint hits, array<GLuint, BUFFER_SIZE> buffer) {
+int processHits(GLint hits, const array<GLuint, BUFFER_SIZE> &buffer) {
     int result = -1;
 
-    GLuint *ptr = buffer.data();
+    const GLuint *ptr = buffer.data();
     for (int i = 0; i < hits; i++) { //for each hit
         GLuint names = *ptr;
         ptr += 3;
@@ -123,21 +124,23 @@ void mouseMove(int x, int y) {
     glReadPixels(new_pos_x, new_pos_y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
     gluUnProject(new_pos_x, new_pos_y, z, cmvm.data(), cpm.data(), viewport.data(), &objx, &objy, &objz);
 
-    if (picked_pos >= 0) {
-        for (auto &&curve : curves) {
-            if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
-                curve.setPicked(picked_pos, {objx, objy, round(objz)});
+    printf("%lli\n", measureTimeNanos([&] {
+        if (picked_pos >= 0) {
+            for (auto &&curve : curves) {
+                if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
+                    curve.setPicked(picked_pos, {objx, objy, round(objz)});
+                }
             }
-        }
 
-        intersections.clear();
-        for (int i = 0; i < curves.size(); ++i) {
-            for (int j = i + 1; j < curves.size(); ++j) {
-                auto intersects = curves[i].intersects(curves[j]);
-                intersections.insert(intersections.end(), intersects.begin(), intersects.end());
+            intersections.clear();
+            for (int i = 0; i < curves.size(); ++i) {
+                for (int j = i + 1; j < curves.size(); ++j) {
+                    auto intersects = curves[i].intersects(curves[j]);
+                    intersections.insert(intersections.end(), intersects.begin(), intersects.end());
+                }
             }
         }
-    }
+    }));
 
     glutPostRedisplay();
 }
