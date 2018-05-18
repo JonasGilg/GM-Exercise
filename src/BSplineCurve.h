@@ -31,17 +31,21 @@ struct BSplineCurve final {
 private:
     void update();
     void calculateBezier();
-    void deBoor();
+    glm::vec3 deBoor(size_t r, float t, const std::vector<float> &X, const PointList &controlPoints,
+                     int n);
     void deBoorRecursive();
 
     void drawMesh() const;
 
     std::vector<BezierCurve> bezierCurves;
+    std::vector<float> knotVector;
     PointList controlPoints;
 
     const glm::vec3 pointColor;
     const glm::vec3 meshColor;
     const glm::vec3 curveColor;
+
+    int degree;
 
     static unsigned long offsetCounter;
 };

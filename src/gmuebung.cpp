@@ -16,6 +16,7 @@
 #include "BezierCurve.h"
 #include "Util.h"
 #include "DrawUtil.h"
+#include "BSplineCurve.h"
 
 using namespace std;
 using namespace glm;
@@ -26,15 +27,18 @@ constexpr int BUFFER_SIZE = 512;
 int windowWidth;
 int windowHeight;
 
-vector<BezierCurve> curves;
+vector<BezierCurve> bezierCurves;
+vector<BSplineCurve> bSplines;
 vector<vec3> intersections;
 
 int picked_pos = -1;
 
 void drawAll() {
-    for (auto &&curve : curves) {
+    for (auto &&curve : bezierCurves)
         curve.draw();
-    }
+
+    for (auto &&curve : bSplines)
+        curve.draw();
 
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_POINTS);
@@ -46,9 +50,13 @@ void drawAll() {
 }
 
 void drawPoints() {
-    for (auto &&curve : curves) {
+    for (auto &&curve : bezierCurves)
         curve.drawPoints(GL_SELECT);
-    }
+
+
+    for (auto &&curve : bSplines)
+        curve.drawPoints(GL_SELECT);
+
     glPopName();
 }
 
@@ -125,16 +133,16 @@ void mouseMove(int x, int y) {
     gluUnProject(new_pos_x, new_pos_y, z, cmvm.data(), cpm.data(), viewport.data(), &objx, &objy, &objz);
 
     if (picked_pos >= 0) {
-        for (auto &&curve : curves) {
+        for (auto &&curve : bezierCurves) {
             if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
                 curve.setPicked(picked_pos, {objx, objy, round(objz)});
             }
         }
 
         intersections.clear();
-        for (int i = 0; i < curves.size(); ++i) {
-            for (int j = i + 1; j < curves.size(); ++j) {
-                auto intersects = curves[i].intersects(curves[j]);
+        for (int i = 0; i < bezierCurves.size(); ++i) {
+            for (int j = i + 1; j < bezierCurves.size(); ++j) {
+                auto intersects = bezierCurves[i].intersects(bezierCurves[j]);
                 intersections.insert(intersections.end(), intersects.begin(), intersects.end());
             }
         }
@@ -159,7 +167,7 @@ void init() {
     glEnable(GL_POINT_SMOOTH);
     glPointSize(8.0);
 
-    curves.emplace_back(vector<vec3>{
+    /*bezierCurves.emplace_back(vector<vec3>{
             {-4.0f,  2.0f, -15.0f},
             {-4.0f,  6.0f, -15.0f},
             {-12.0f, 6.0f, -15.0f},
@@ -167,7 +175,7 @@ void init() {
             {-8.0f,  2.0f, -15.0f}
     }, vec3(0.2f, 0.2f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.6f, 0.6f, 1.0f));
 
-    curves.emplace_back(vector<vec3>{
+    bezierCurves.emplace_back(vector<vec3>{
             {4.0f,  2.0f, -15.0f},
             {4.0f,  6.0f, -15.0f},
             {12.0f, 6.0f, -15.0f},
@@ -175,13 +183,21 @@ void init() {
             {8.0f,  2.0f, -15.0f}
     }, vec3(0.2f, 1.0f, 0.2f), vec3(1.0f, 1.0f, 0.0f), vec3(0.6f, 1.0f, 0.6f));
 
-    curves.emplace_back(vector<vec3>{
+    bezierCurves.emplace_back(vector<vec3>{
             {-4.0f, -6.0f, -15.0f},
             {-4.0f, -2.0f, -15.0f},
             {4.0f,  -2.0f, -15.0f},
             {4.0f,  -6.0f, -15.0f},
             {0.0f,  -6.0f, -15.0f}
-    }, vec3(0.2f, 0.2f, 0.2f), vec3(1.0f, 1.0f, 1.0f), vec3(0.6f, 0.6f, 0.6f));
+    }, vec3(0.2f, 0.2f, 0.2f), vec3(1.0f, 1.0f, 1.0f), vec3(0.6f, 0.6f, 0.6f));*/
+
+    bSplines.emplace_back(vector<vec3>{
+            {-4.0f,  2.0f, -15.0f},
+            {-4.0f,  6.0f, -15.0f},
+            {-12.0f, 6.0f, -15.0f},
+            {-12.0f, 2.0f, -15.0f},
+            {-8.0f,  2.0f, -15.0f}
+    }, vec3(0.2f, 0.2f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.6f, 0.6f, 1.0f));
 }
 
 void reshape(GLsizei w, GLsizei h) {
