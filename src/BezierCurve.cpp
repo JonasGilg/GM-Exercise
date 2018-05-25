@@ -40,7 +40,7 @@ BezierCurve::BezierCurve(const PointList &controlPoints,
           meshColor(meshColor),
           curveColor(curveColor),
           offset(offsetCounter),
-          offsetEnd(static_cast<const unsigned long>(offsetCounter + controlPoints.size())) {
+          offsetEnd(offsetCounter + controlPoints.size()) {
     update();
     offsetCounter = offsetEnd;
 }

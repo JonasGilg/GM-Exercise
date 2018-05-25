@@ -31,9 +31,11 @@ struct BSplineCurve final {
 private:
     void update();
     void calculateBezier();
-    glm::vec3 deBoor(size_t r, float t, const std::vector<float> &X, const PointList &controlPoints,
-                     int n);
+    PointList deBoor(int r, float t, const std::vector<float> &X, const PointList &currPoints,
+                     int n)const;
     void deBoorRecursive();
+
+    float largestT();
 
     void drawMesh() const;
 

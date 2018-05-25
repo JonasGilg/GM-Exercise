@@ -1,4 +1,5 @@
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
 #include "BSplineCurve.h"
 #include "BezierCurve.h"
 
@@ -28,6 +29,10 @@ BSplineCurve::BSplineCurve(const PointList &controlPoints,
     for (int j = 0; j < k; ++j) {
         knotVector.push_back(controlPoints.size() - 1);
     }
+
+    for (auto&& knot : knotVector) {
+        cout << knot << endl;
+    }
 }
 
 void BSplineCurve::setPicked(int i, const vec3 &picked) {
@@ -42,6 +47,8 @@ void BSplineCurve::draw() const {
 
     drawMesh();
     drawPoints(GL_RENDER);
+
+    glColor3f(1, 0, 0);
 }
 
 void BSplineCurve::drawPoints(GLenum mode) const {
@@ -74,24 +81,38 @@ void BSplineCurve::calculateBezier() {
 
 }
 
-//                               index       position         knots              start d[]           degree
-vec3 BSplineCurve::deBoor(size_t r, float t, const vector<float> &X, const PointList &controlPoints, int n) {
-    PointList d(static_cast<unsigned long>(n + 1));
-    for (int i = 0; i < n + 1; ++i)
-        d[i] = controlPoints[i + r - n];
+//                             index     position       knots                   start d[]                 degree
+PointList BSplineCurve::deBoor(int r, float t, const vector<float> &X, const PointList &currPoints, int n) const {
+    PointList resultList;
+    resultList.push_back(currPoints[0]);
 
-    for (int j = 1; j < n + 1; ++j) {
-        for (int b = n; b < j - 1; --b) {
-            ulong i = b + r - n;
+    for (int i = 0; i < currPoints.size() - 1; ++i) {
 
-            float alpha = (t - X[i]) / (X[i + n - j + 1/*b + 1 + r - j*/] - X[i]);
-            d[b] = (1.0f - alpha) * d[b - 1] + alpha * d[b];
-        }
     }
 
-    return d[n];
+    resultList.push_back(currPoints.back());
 }
 
 void BSplineCurve::deBoorRecursive() {
+    float t = largestT();
 
+    PointList currPoints = controlPoints;
+
+    for (int r = 0; r < degree; ++r) {
+        currPoints = deBoor(r, t, knotVector, currPoints, degree);
+    }
+}
+
+float BSplineCurve::largestT() {
+    float max = 0;
+    int maxIndex = 0;
+
+    for (int i = 0; i < knotVector.size() - 1; ++i) {
+        if(knotVector[i + 1] - knotVector[i] > max) {
+            max = knotVector[i + 1] - knotVector[i];
+            maxIndex = i;
+        }
+    }
+
+    return (knotVector[maxIndex] + knotVector[maxIndex + 1]) / 2;
 }

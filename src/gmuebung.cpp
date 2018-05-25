@@ -31,6 +31,8 @@ vector<BezierCurve> bezierCurves;
 vector<BSplineCurve> bSplines;
 vector<vec3> intersections;
 
+constexpr bool pickBezier = false;
+
 int picked_pos = -1;
 
 void drawAll() {
@@ -133,9 +135,17 @@ void mouseMove(int x, int y) {
     gluUnProject(new_pos_x, new_pos_y, z, cmvm.data(), cpm.data(), viewport.data(), &objx, &objy, &objz);
 
     if (picked_pos >= 0) {
-        for (auto &&curve : bezierCurves) {
-            if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
-                curve.setPicked(picked_pos, {objx, objy, round(objz)});
+        if(pickBezier) {
+            for (auto &&curve : bezierCurves) {
+                if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
+                    curve.setPicked(picked_pos, {objx, objy, round(objz)});
+                }
+            }
+        } else {
+            for (auto &&curve : bSplines) {
+                if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
+                    curve.setPicked(picked_pos, {objx, objy, round(objz)});
+                }
             }
         }
 
