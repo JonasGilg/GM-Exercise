@@ -19,19 +19,16 @@ BSplineCurve::BSplineCurve(const PointList &controlPoints,
           offset(offsetCounter),
           offsetEnd(offsetCounter + controlPoints.size()) {
     degree = 3;
-    int k = degree - 1;
-    knotVector = vector<float>(k, 0);
-
-    for (int i = 0; i < controlPoints.size(); ++i) {
-        knotVector.push_back(i);
-    }
-
-    for (int j = 0; j < k; ++j) {
-        knotVector.push_back(controlPoints.size() - 1);
-    }
-
-    for (auto&& knot : knotVector) {
-        cout << knot << endl;
+    size_t max = degree + controlPoints.size() + 1;
+    int number = 0;
+    for (int i = 0; i < max; ++i) {
+        if(i < degree) {
+            knotVector.push_back(number);
+        } else if(i < max - degree - 1) {
+            knotVector.push_back(number++);
+        } else {
+            knotVector.push_back(number);
+        }
     }
 }
 
@@ -41,12 +38,12 @@ void BSplineCurve::setPicked(int i, const vec3 &picked) {
 }
 
 void BSplineCurve::draw() const {
+    drawMesh();
+    drawPoints(GL_RENDER);
+
     for(auto&& curve : bezierCurves) {
         curve.draw();
     }
-
-    drawMesh();
-    drawPoints(GL_RENDER);
 
     glColor3f(1, 0, 0);
 }
@@ -78,41 +75,74 @@ void BSplineCurve::update() {
 }
 
 void BSplineCurve::calculateBezier() {
+    PointList resultList = controlPoints;
+    vector<float> x = knotVector;
 
-}
+    int r = largestTIndex(x);
 
-//                             index     position       knots                   start d[]                 degree
-PointList BSplineCurve::deBoor(int r, float t, const vector<float> &X, const PointList &currPoints, int n) const {
-    PointList resultList;
-    resultList.push_back(currPoints[0]);
+    while (r != -1) {
+        float t = (x[r] + x[r - 1]) / 2;
+        resultList = deBoor(r, t, x, resultList);
 
-    for (int i = 0; i < currPoints.size() - 1; ++i) {
+        cout << "size: " << resultList.size() << " | x: "<< x[r] << " | r: " << r << " | t: " << t << endl;
 
+        float xr = x[r];
+        x.insert(x.begin() + r, xr);
+        r = largestTIndex(x);
     }
 
-    resultList.push_back(currPoints.back());
-}
+    cout << "----------------" << endl;
 
-void BSplineCurve::deBoorRecursive() {
-    float t = largestT();
-
-    PointList currPoints = controlPoints;
-
-    for (int r = 0; r < degree; ++r) {
-        currPoints = deBoor(r, t, knotVector, currPoints, degree);
+    bezierCurves.clear();
+    size_t numBezier = (resultList.size() - 1) / degree;
+    for (int i = 0; i < numBezier; ++i) {
+        bezierCurves.emplace_back(PointList(resultList.begin() + i * degree, resultList.begin() + (i * degree) + degree + 1), vec3(1, 1, 1), vec3(1, 1, 1), vec3(0, 1, 0));
     }
 }
 
-float BSplineCurve::largestT() {
-    float max = 0;
-    int maxIndex = 0;
+int BSplineCurve::largestTIndex(const vector<float>& x) {
+    float currNum = x[0];
+    int counter = 1;
 
-    for (int i = 0; i < knotVector.size() - 1; ++i) {
-        if(knotVector[i + 1] - knotVector[i] > max) {
-            max = knotVector[i + 1] - knotVector[i];
-            maxIndex = i;
+    for (int i = 1; i < x.size(); ++i) {
+        if(x[i] == currNum) {
+            counter++;
+        } else {
+            if(counter < degree) {
+                return i - 1;
+            } else {
+                counter = 1;
+                currNum = x[i];
+            }
         }
     }
 
-    return (knotVector[maxIndex] + knotVector[maxIndex + 1]) / 2;
+    return -1;
+}
+
+float BSplineCurve::alpha(int i, int j, float t, const vector<float> &x)const {
+    return (t - x[i]) / (x[i + degree - j + 1] - x[i]);
+}
+
+vec3 BSplineCurve::d(const vec3& d0, const vec3& d1,float alpha)const {
+    return (1 - alpha) * d0 + alpha * d1;
+}
+
+//                             index     position       knots                   start d[]                 degree
+PointList BSplineCurve::deBoor(int r, float t, const vector<float> &X, const PointList &currPoints) const {
+    PointList resultPoints = PointList(currPoints.size() + 1);
+
+    int startIndex = r - degree;
+
+    for (int i = 0; i < resultPoints.size(); ++i) {
+        if(i <= startIndex) {
+            resultPoints[i] = currPoints[i];
+        } else if(i >= r) {
+            resultPoints[i] = currPoints[i - 1];
+        } else {
+            resultPoints[i] = d(currPoints[i - 1], currPoints[i], alpha(i, 0, t, X));
+        }
+    }
+
+    return resultPoints;
 }

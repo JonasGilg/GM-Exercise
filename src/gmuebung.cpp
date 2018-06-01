@@ -48,7 +48,7 @@ void drawAll() {
         glVertex3fv(value_ptr(point));
     glEnd();
 
-    drawText("Made by Jonas Gilg", 10, 10, windowWidth, windowHeight);
+    drawText("Made by Jonas Gilg & Torben Lange", 10, 10, windowWidth, windowHeight);
 }
 
 void drawPoints() {
@@ -206,7 +206,8 @@ void init() {
             {-4.0f,  6.0f, -15.0f},
             {-12.0f, 6.0f, -15.0f},
             {-12.0f, 2.0f, -15.0f},
-            {-8.0f,  2.0f, -15.0f}
+            {-8.0f,  2.0f, -15.0f},
+            {-10.0f,  4.0f, -15.0f}
     }, vec3(0.2f, 0.2f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.6f, 0.6f, 1.0f));
 }
 

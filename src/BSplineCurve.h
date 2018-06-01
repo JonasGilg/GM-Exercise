@@ -31,11 +31,7 @@ struct BSplineCurve final {
 private:
     void update();
     void calculateBezier();
-    PointList deBoor(int r, float t, const std::vector<float> &X, const PointList &currPoints,
-                     int n)const;
-    void deBoorRecursive();
-
-    float largestT();
+    PointList deBoor(int r, float t, const std::vector<float> &X, const PointList &currPoints)const;
 
     void drawMesh() const;
 
@@ -50,4 +46,10 @@ private:
     int degree;
 
     static unsigned long offsetCounter;
+
+    float alpha(int i, int j, float t, const std::vector<float> &x)const;
+
+    glm::vec3 d(const glm::vec3 &d0, const glm::vec3 &d1, float alpha)const;
+
+    int largestTIndex(const std::vector<float> &x);
 };
