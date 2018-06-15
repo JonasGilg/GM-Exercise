@@ -2,8 +2,7 @@
 #include <iostream>
 #include "BSplineCurve.h"
 #include "BezierCurve.h"
-
-unsigned long BSplineCurve::offsetCounter = 0;
+#include "PickingOffsetManager.h"
 
 using namespace std;
 using namespace glm;
@@ -16,8 +15,8 @@ BSplineCurve::BSplineCurve(const PointList &controlPoints,
           pointColor(pointColor),
           meshColor(meshColor),
           curveColor(curveColor),
-          offset(offsetCounter),
-          offsetEnd(offsetCounter + controlPoints.size()) {
+          offset(PickingOffsetManager::getNewOffset(controlPoints.size())),
+          offsetEnd(offset + controlPoints.size()) {
     degree = 3;
     size_t max = degree + controlPoints.size() + 1;
     int number = 0;
@@ -30,6 +29,7 @@ BSplineCurve::BSplineCurve(const PointList &controlPoints,
             knotVector.push_back(number);
         }
     }
+    update();
 }
 
 void BSplineCurve::setPicked(int i, const vec3 &picked) {
@@ -52,8 +52,10 @@ void BSplineCurve::drawPoints(GLenum mode) const {
     glColor3fv(value_ptr(pointColor));
 
     for (int i = 0; i < controlPoints.size(); i++) {
-        if (mode == GL_SELECT)
+        if (mode == GL_SELECT) {
+
             glLoadName(static_cast<GLuint>(i + offset));
+        }
 
         glBegin(GL_POINTS);
         glVertex3fv(value_ptr(controlPoints[i]));
@@ -84,14 +86,10 @@ void BSplineCurve::calculateBezier() {
         float t = (x[r] + x[r - 1]) / 2;
         resultList = deBoor(r, t, x, resultList);
 
-        cout << "size: " << resultList.size() << " | x: "<< x[r] << " | r: " << r << " | t: " << t << endl;
-
         float xr = x[r];
         x.insert(x.begin() + r, xr);
         r = largestTIndex(x);
     }
-
-    cout << "----------------" << endl;
 
     bezierCurves.clear();
     size_t numBezier = (resultList.size() - 1) / degree;

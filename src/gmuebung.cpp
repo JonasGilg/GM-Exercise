@@ -12,11 +12,14 @@
 #include <vector>
 #include <glm/gtc/type_ptr.hpp>
 #include <array>
+#include <iostream>
+#include <map>
 
 #include "BezierCurve.h"
 #include "Util.h"
 #include "DrawUtil.h"
 #include "BSplineCurve.h"
+#include "DynamicKnotVector.h"
 
 using namespace std;
 using namespace glm;
@@ -29,10 +32,10 @@ int windowHeight;
 
 vector<BezierCurve> bezierCurves;
 vector<BSplineCurve> bSplines;
+vector<DynamicKnotVector> dynamicKnotVectors;
 vector<vec3> intersections;
 
 constexpr bool pickBezier = false;
-
 int picked_pos = -1;
 
 void drawAll() {
@@ -42,13 +45,14 @@ void drawAll() {
     for (auto &&curve : bSplines)
         curve.draw();
 
+    for (auto &&curve : dynamicKnotVectors)
+        curve.draw(GL_RENDER);
+
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_POINTS);
     for (auto &&point : intersections)
         glVertex3fv(value_ptr(point));
     glEnd();
-
-    drawText("Made by Jonas Gilg & Torben Lange", 10, 10, windowWidth, windowHeight);
 }
 
 void drawPoints() {
@@ -70,9 +74,13 @@ int processHits(GLint hits, const array<GLuint, BUFFER_SIZE> &buffer) {
         GLuint names = *ptr;
         ptr += 3;
 
+        cout << "ID: " << names << endl;
+
         for (int j = 0; j < names; j++) { //for each name
             result = (int) *ptr;
             ptr++;
+
+            cout << "Result: " << result << endl;
         }
     }
 
@@ -209,6 +217,8 @@ void init() {
             {-8.0f,  2.0f, -15.0f},
             {-10.0f,  4.0f, -15.0f}
     }, vec3(0.2f, 0.2f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.6f, 0.6f, 1.0f));
+
+    dynamicKnotVectors.push_back(DynamicKnotVector(&bSplines[0]));
 }
 
 void reshape(GLsizei w, GLsizei h) {

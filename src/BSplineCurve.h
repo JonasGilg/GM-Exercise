@@ -28,6 +28,10 @@ struct BSplineCurve final {
     const unsigned long offset;
     const unsigned long offsetEnd;
 
+    std::vector<float> knotVector;
+    PointList controlPoints;
+    int degree;
+
 private:
     void update();
     void calculateBezier();
@@ -36,16 +40,10 @@ private:
     void drawMesh() const;
 
     std::vector<BezierCurve> bezierCurves;
-    std::vector<float> knotVector;
-    PointList controlPoints;
 
     const glm::vec3 pointColor;
     const glm::vec3 meshColor;
     const glm::vec3 curveColor;
-
-    int degree;
-
-    static unsigned long offsetCounter;
 
     float alpha(int i, int j, float t, const std::vector<float> &x)const;
 

@@ -100,7 +100,7 @@ add_executable(gm_exercise
         src/Line.h
         src/Util.h
         src/DrawUtil.h
-        src/BSplineCurve.cpp src/BSplineCurve.h)
+        src/BSplineCurve.cpp src/BSplineCurve.h src/DynamicKnotVector.cpp src/DynamicKnotVector.h src/PickingOffsetManager.h src/PickingOffsetManager.cpp)
 
 target_link_libraries(gm_exercise ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
 
