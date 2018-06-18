@@ -63,6 +63,8 @@ void drawPoints() {
     for (auto &&curve : bSplines)
         curve.drawPoints(GL_SELECT);
 
+    for (auto &&knots : dynamicKnotVectors)
+        knots.draw(GL_SELECT);
     glPopName();
 }
 
@@ -73,8 +75,6 @@ int processHits(GLint hits, const array<GLuint, BUFFER_SIZE> &buffer) {
     for (int i = 0; i < hits; i++) { //for each hit
         GLuint names = *ptr;
         ptr += 3;
-
-        cout << "ID: " << names << endl;
 
         for (int j = 0; j < names; j++) { //for each name
             result = (int) *ptr;
@@ -150,11 +150,20 @@ void mouseMove(int x, int y) {
                 }
             }
         } else {
+            //cout<<picked_pos << endl;
             for (auto &&curve : bSplines) {
                 if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
+                    cout << picked_pos << "/" <<curve.offset<<","<<curve.offsetEnd<<endl;
                     curve.setPicked(picked_pos, {objx, objy, round(objz)});
                 }
             }
+            for (auto &&knotVector : dynamicKnotVectors){
+                if (picked_pos >= knotVector.offset && picked_pos < knotVector.offsetEnd) {
+                    //cout << picked_pos << endl;
+                    knotVector.setPicked(picked_pos,{objx,objy,round(objz)});
+                }
+            }
+
         }
 
         intersections.clear();

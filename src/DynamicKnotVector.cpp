@@ -5,11 +5,36 @@
 #include "PickingOffsetManager.h"
 #include "AxisAlignedBoundingBox.h"
 
+using namespace std;
+
 void DynamicKnotVector::setPicked(int i, const vec3 &picked) {
-    controlKnots[i - offset];
+    cout<<i<<" - "<<offset<<" + "<<offsetEnd<<endl;
+
+    if(i!=offset && i!=offsetEnd-1){
+        int index =i - offset;
+        if(picked.x>controlKnots[index-1].x && picked.x<controlKnots[index+1].x){
+            vec3 old = controlKnots[index];
+
+            controlKnots[index]=vec3(picked.x,old.y,old.z);
+            update(index);
+        }
+
+    }
+
 }
 
-void DynamicKnotVector::update() {
+void DynamicKnotVector::update(int index) {
+
+    float max = bSplineCurve->knotVector.back();
+    float value = controlKnots[index].x-controlKnots[0].x;
+    dist = controlKnots.back().x-controlKnots.front().x;
+    cout<<"max: "<<max << " value: "<<value<< " dist: "<<dist<<endl;
+
+    float result = value/dist*max;
+
+    bSplineCurve->updateKnotVector(index,result);
+
+
 
 }
 
@@ -37,8 +62,8 @@ const float offsetUp = 2.0f;
 
 DynamicKnotVector::DynamicKnotVector(BSplineCurve *bSplineCurve)
         : bSplineCurve(bSplineCurve),
-          offset(PickingOffsetManager::getNewOffset(bSplineCurve->controlPoints.size())),
-          offsetEnd(offset + PickingOffsetManager::getNewOffset(bSplineCurve->controlPoints.size()))
+          offset(PickingOffsetManager::getNewOffset(bSplineCurve->controlPoints.size()-bSplineCurve->degree+1)),
+          offsetEnd(offset + bSplineCurve->controlPoints.size()-bSplineCurve->degree+1)
 {
     AABB aabb = AABB::createFromMesh(bSplineCurve->controlPoints);
     float yCoord = aabb.max.y + offsetUp;
@@ -51,11 +76,10 @@ DynamicKnotVector::DynamicKnotVector(BSplineCurve *bSplineCurve)
     float step = dist/ *(bSplineCurve->knotVector.end()-1);
     std::cout << step << std::endl;
 
-    controlKnots = PointList(bSplineCurve->controlPoints.size());
+    controlKnots = PointList(bSplineCurve->knotVector.size()-2*bSplineCurve->degree);
     for (int i = 0; i < controlKnots.size(); ++i) {
         float x = start.x+i*step;
         controlKnots[i] = vec3(x,yCoord,zCoord);
-        std::cout << x << std::endl;
     }
 
 }

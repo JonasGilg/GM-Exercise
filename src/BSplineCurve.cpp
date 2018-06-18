@@ -24,13 +24,16 @@ BSplineCurve::BSplineCurve(const PointList &controlPoints,
         if(i < degree) {
             knotVector.push_back(number);
         } else if(i < max - degree - 1) {
-            knotVector.push_back(number++);
+            knotVector.push_back(number);
+            number++;
         } else {
             knotVector.push_back(number);
         }
     }
+
     update();
 }
+
 
 void BSplineCurve::setPicked(int i, const vec3 &picked) {
     controlPoints[i - offset] = picked;
@@ -73,6 +76,9 @@ void BSplineCurve::drawMesh() const {
 }
 
 void BSplineCurve::update() {
+    for(auto&& knot : knotVector)
+        cout << knot << ", ";
+    cout<<endl;
     calculateBezier();
 }
 
@@ -144,3 +150,12 @@ PointList BSplineCurve::deBoor(int r, float t, const vector<float> &X, const Poi
 
     return resultPoints;
 }
+
+void BSplineCurve::updateKnotVector(int index, float input) {
+
+    knotVector[index+degree] = input;
+
+    update();
+}
+
+
