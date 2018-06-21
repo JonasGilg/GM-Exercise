@@ -15,15 +15,15 @@ BSplineCurve::BSplineCurve(const PointList &controlPoints,
           pointColor(pointColor),
           meshColor(meshColor),
           curveColor(curveColor),
-          offset(PickingOffsetManager::getNewOffset(controlPoints.size())),
-          offsetEnd(offset + controlPoints.size()) {
+          offset(static_cast<const unsigned long>(PickingOffsetManager::getNewOffset(controlPoints.size()))),
+          offsetEnd(static_cast<const unsigned long>(offset + controlPoints.size())) {
     degree = 3;
     size_t max = degree + controlPoints.size() + 1;
     int number = 0;
     for (int i = 0; i < max; ++i) {
-        if(i < degree) {
+        if (i < degree) {
             knotVector.push_back(number);
-        } else if(i < max - degree - 1) {
+        } else if (i < max - degree - 1) {
             knotVector.push_back(number);
             number++;
         } else {
@@ -34,7 +34,6 @@ BSplineCurve::BSplineCurve(const PointList &controlPoints,
     update();
 }
 
-
 void BSplineCurve::setPicked(int i, const vec3 &picked) {
     controlPoints[i - offset] = picked;
     update();
@@ -44,7 +43,7 @@ void BSplineCurve::draw() const {
     drawMesh();
     drawPoints(GL_RENDER);
 
-    for(auto&& curve : bezierCurves) {
+    for (auto &&curve : bezierCurves) {
         curve.draw();
     }
 
@@ -56,7 +55,6 @@ void BSplineCurve::drawPoints(GLenum mode) const {
 
     for (int i = 0; i < controlPoints.size(); i++) {
         if (mode == GL_SELECT) {
-
             glLoadName(static_cast<GLuint>(i + offset));
         }
 
@@ -76,9 +74,6 @@ void BSplineCurve::drawMesh() const {
 }
 
 void BSplineCurve::update() {
-    for(auto&& knot : knotVector)
-        cout << knot << ", ";
-    cout<<endl;
     calculateBezier();
 }
 
@@ -100,19 +95,21 @@ void BSplineCurve::calculateBezier() {
     bezierCurves.clear();
     size_t numBezier = (resultList.size() - 1) / degree;
     for (int i = 0; i < numBezier; ++i) {
-        bezierCurves.emplace_back(PointList(resultList.begin() + i * degree, resultList.begin() + (i * degree) + degree + 1), vec3(1, 1, 1), vec3(1, 1, 1), vec3(0, 1, 0));
+        bezierCurves.emplace_back(
+                PointList(resultList.begin() + i * degree, resultList.begin() + (i * degree) + degree + 1),
+                vec3(1, 1, 1), vec3(1, 1, 1), vec3(0, 1, 0));
     }
 }
 
-int BSplineCurve::largestTIndex(const vector<float>& x) {
+int BSplineCurve::largestTIndex(const vector<float> &x) {
     float currNum = x[0];
     int counter = 1;
 
     for (int i = 1; i < x.size(); ++i) {
-        if(x[i] == currNum) {
+        if (x[i] == currNum) {
             counter++;
         } else {
-            if(counter < degree) {
+            if (counter < degree) {
                 return i - 1;
             } else {
                 counter = 1;
@@ -124,24 +121,30 @@ int BSplineCurve::largestTIndex(const vector<float>& x) {
     return -1;
 }
 
-float BSplineCurve::alpha(int i, int j, float t, const vector<float> &x)const {
+float BSplineCurve::alpha(int i, int j, float t, const vector<float> &x) const {
     return (t - x[i]) / (x[i + degree - j + 1] - x[i]);
 }
 
-vec3 BSplineCurve::d(const vec3& d0, const vec3& d1,float alpha)const {
+vec3 BSplineCurve::d(const vec3 &d0, const vec3 &d1, float alpha) const {
     return (1 - alpha) * d0 + alpha * d1;
 }
 
-//                             index     position       knots                   start d[]                 degree
+/**
+ * @param r index
+ * @param t position
+ * @param X knots
+ * @param currPoints d
+ * @return new d
+ */
 PointList BSplineCurve::deBoor(int r, float t, const vector<float> &X, const PointList &currPoints) const {
     PointList resultPoints = PointList(currPoints.size() + 1);
 
     int startIndex = r - degree;
 
     for (int i = 0; i < resultPoints.size(); ++i) {
-        if(i <= startIndex) {
+        if (i <= startIndex) {
             resultPoints[i] = currPoints[i];
-        } else if(i >= r) {
+        } else if (i >= r) {
             resultPoints[i] = currPoints[i - 1];
         } else {
             resultPoints[i] = d(currPoints[i - 1], currPoints[i], alpha(i, 0, t, X));
@@ -151,10 +154,8 @@ PointList BSplineCurve::deBoor(int r, float t, const vector<float> &X, const Poi
     return resultPoints;
 }
 
-void BSplineCurve::updateKnotVector(int index, float input) {
-
-    knotVector[index+degree] = input;
-
+void BSplineCurve::updateKnotVector(unsigned long index, float input) {
+    knotVector[index + degree] = input;
     update();
 }
 

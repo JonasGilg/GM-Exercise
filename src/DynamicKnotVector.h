@@ -9,8 +9,6 @@ class DynamicKnotVector {
     BSplineCurve *bSplineCurve;
     PointList controlKnots;
 
-
-
     vec3 start;
     vec3 end;
     float dist;
@@ -21,7 +19,7 @@ public:
     DynamicKnotVector(BSplineCurve *bSplineCurve);
 
     void setPicked(int i, const vec3 &picked);
-    void update(int index);
+    void update(unsigned long index);
     void draw(GLenum mode);
 
     float sumOfWeights(std::vector<float> knots, int degree);

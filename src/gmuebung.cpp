@@ -79,8 +79,6 @@ int processHits(GLint hits, const array<GLuint, BUFFER_SIZE> &buffer) {
         for (int j = 0; j < names; j++) { //for each name
             result = (int) *ptr;
             ptr++;
-
-            cout << "Result: " << result << endl;
         }
     }
 
@@ -143,24 +141,21 @@ void mouseMove(int x, int y) {
     gluUnProject(new_pos_x, new_pos_y, z, cmvm.data(), cpm.data(), viewport.data(), &objx, &objy, &objz);
 
     if (picked_pos >= 0) {
-        if(pickBezier) {
+        if (pickBezier) {
             for (auto &&curve : bezierCurves) {
                 if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
                     curve.setPicked(picked_pos, {objx, objy, round(objz)});
                 }
             }
         } else {
-            //cout<<picked_pos << endl;
             for (auto &&curve : bSplines) {
                 if (picked_pos >= curve.offset && picked_pos < curve.offsetEnd) {
-                    cout << picked_pos << "/" <<curve.offset<<","<<curve.offsetEnd<<endl;
                     curve.setPicked(picked_pos, {objx, objy, round(objz)});
                 }
             }
-            for (auto &&knotVector : dynamicKnotVectors){
+            for (auto &&knotVector : dynamicKnotVectors) {
                 if (picked_pos >= knotVector.offset && picked_pos < knotVector.offsetEnd) {
-                    //cout << picked_pos << endl;
-                    knotVector.setPicked(picked_pos,{objx,objy,round(objz)});
+                    knotVector.setPicked(picked_pos, {objx, objy, round(objz)});
                 }
             }
 
@@ -224,10 +219,10 @@ void init() {
             {-12.0f, 6.0f, -15.0f},
             {-12.0f, 2.0f, -15.0f},
             {-8.0f,  2.0f, -15.0f},
-            {-10.0f,  4.0f, -15.0f}
+            {-10.0f, 4.0f, -15.0f}
     }, vec3(0.2f, 0.2f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.6f, 0.6f, 1.0f));
 
-    dynamicKnotVectors.push_back(DynamicKnotVector(&bSplines[0]));
+    dynamicKnotVectors.emplace_back(&bSplines[0]);
 }
 
 void reshape(GLsizei w, GLsizei h) {

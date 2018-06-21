@@ -22,7 +22,7 @@ struct BSplineCurve final {
 
     void draw() const;
     void drawPoints(GLenum mode) const;
-    void updateKnotVector(int index, float input);
+    void updateKnotVector(unsigned long index, float input);
 
     ~BSplineCurve() = default;
 
