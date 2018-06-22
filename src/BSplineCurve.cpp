@@ -52,7 +52,7 @@ void BSplineCurve::draw() const {
 
 void BSplineCurve::drawPoints(GLenum mode) const {
     glColor3fv(value_ptr(pointColor));
-
+    glPointSize(12.0f);
     for (int i = 0; i < controlPoints.size(); i++) {
         if (mode == GL_SELECT) {
             glLoadName(static_cast<GLuint>(i + offset));
@@ -62,6 +62,7 @@ void BSplineCurve::drawPoints(GLenum mode) const {
         glVertex3fv(value_ptr(controlPoints[i]));
         glEnd();
     }
+    glPointSize(8.0f);
 }
 
 void BSplineCurve::drawMesh() const {

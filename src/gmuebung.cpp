@@ -189,7 +189,7 @@ void init() {
     glEnable(GL_POINT_SMOOTH);
     glPointSize(8.0);
 
-    /*bezierCurves.emplace_back(vector<vec3>{
+/*    bezierCurves.emplace_back(vector<vec3>{
             {-4.0f,  2.0f, -15.0f},
             {-4.0f,  6.0f, -15.0f},
             {-12.0f, 6.0f, -15.0f},
@@ -219,8 +219,10 @@ void init() {
             {-12.0f, 6.0f, -15.0f},
             {-12.0f, 2.0f, -15.0f},
             {-8.0f,  2.0f, -15.0f},
-            {-10.0f, 4.0f, -15.0f}
-    }, vec3(0.2f, 0.2f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.6f, 0.6f, 1.0f));
+            {-8.0f, -2.0f, -15.0f},
+            {-5.0f, -4.0f, -15.0f},
+            {-2.0f, -4.0f, -15.0f}
+    }, vec3(1.0f, 0.2f, 0.2f), vec3(1.0f, 0.0f, 1.0f), vec3(0.6f, 0.6f, 1.0f));
 
     dynamicKnotVectors.emplace_back(&bSplines[0]);
 }
